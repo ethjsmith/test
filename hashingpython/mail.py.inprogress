@@ -1,0 +1,7 @@
+import smtplib
+import base64
+eus='ethanmailserverbot@gmail.com'
+epas = 'botsdontneedpasswords'
+svr = 'smtp.gmail.com'
+svrp = 465
+
