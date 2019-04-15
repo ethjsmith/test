@@ -1,0 +1,6 @@
+I wondered if while you are iterating through an arraylist, can you remove items from that loop,
+and it looks like, if you're using a standard for loop to iterate,
+
+In order to change an arraylist you have to loop over it backwards ( from the end to the beginning )
+
+
