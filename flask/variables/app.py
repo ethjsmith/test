@@ -14,11 +14,13 @@ def send():
 	return request.args.get('arg1')
 
 #More advanced implimentation
-@app.route("/",methods= ['GET','POST'])
+@app.route("/")
 def vartest():
-	if request.args.get('arg1') is not None:
-		changelight(request.args.get('arg1'))
-	return '<html><body>' + str(light) + '<br><a href = "/?arg1=yes">Change light</a></body></html>'
+# the variables are named weird because I was testing if they're names mattered and no it seems not lol
+# the problem I ended up trying to troubleshoot was caused because I was testing in python 2.7 and running in 3.4 pepega
+	if request.args.get('arzzg2') is not None:
+		changelight(request.args.get('arzzg2'))
+	return '<html><body>' + str(light) + '<br><a href = "/?arzzg2=yes">Change light</a></body></html>'
 
 # this might be the crappiest code I've ever written lol
 def changelight(do):
