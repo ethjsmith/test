@@ -34,8 +34,11 @@ def testfunc():
 
 @app.route("/db")
 def datatest():
-	init_db()
-	return 'testing'
+	db = init_db()
+	#ret = ""
+	#for row in db:
+	#	ret += row
+	return "success"
 @app.route("/<path:url>")
 def test2(url):
 	return "your url is " + url
