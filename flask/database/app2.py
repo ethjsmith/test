@@ -53,10 +53,15 @@ def dele():
     vv = input("Delete an index?")
     removething(vv)
     conn.commit()
-#
+def doit():
+    c.execute("SELECT * FROM correlations;")
+    mydata = c.fetchall()
+    print(mydata)
+
 #selectall()
-z = True
-while z == True:
-    z = gameloop()
+#z = True
+#while z == True:
+#    z = gameloop()
+doit()
 conn.commit()
 conn.close()
