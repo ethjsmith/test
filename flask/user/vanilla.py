@@ -1,3 +1,4 @@
+
 import flask_login, hashlib
 #from flask import Flask,current_app,g
 from flask import Flask, request, render_template, redirect, url_for, flash
@@ -62,16 +63,10 @@ def login():
         print(username)
         print(pas)
         print("=====")
-        #usr.name = username
-        #usr.id = 1
-        #usr.passwd = pas
         if username  == user.email:
             print("username is in USER_NAMES")
             if pas == user.password:
-            #if pas  == USER_NAMES[username].password:
                 print("good password")
-                #USER_NAMES[username].authed = True
-                #user
                 if login_user(user,remember=True):
                     print("successful login for " + user.name)
                     return redirect("/")
