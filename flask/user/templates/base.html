@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+    <head>
+        <title> {{title}} </title>
+        <link rel="stylesheet" href ="{{ url_for('static', filename='style.css')}}">
+    </head>
+    <body>
+        <header>
+            <div class = "topnav">
+                <a href="/">Home</a>
+                <a href="/login">login</a>
+                <a href="/logout">logout</a>
+                <a href="/admin">admin</a>
+                <a href="/register">register</a>
+                <a href="/mypage">{{content}}</a>
+            </div>
+            <!-- {% block header %}{% endblock %} -->
+        </header>
+        <div class = "card">
+            {{ content }}
+        </div>
+    </body>
+</html>
+<!-- {% block content %}{% endblock %} -->
+<!-- <html>
+    <body>
+        <form method = "POST" enctype = "multipart/form-data">
+            <input type = "text" name = "username" />
+            <input type = "password" name = "password"/>
+            <input type = "checkbox" name = "remember" value = "yes">Remember me ?
+            <input type = "submit" value = "login"/>
+        </form>
+    </body>
+</html> -->

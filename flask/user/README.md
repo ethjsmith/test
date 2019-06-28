@@ -16,8 +16,6 @@ required installs : Flask, flask_login, flask_sqlachemy
 # ===TODO===
 # user management page
 # create new users page
-# "roles" some way to verify that only I can control the lights
 # topbar change that adds your usename/login status
-# (IMPORTANT) impliment hashing
 # impliment salting
 # moves sensitive information (like secret key and hash/salt info into an external config not saved in github)
