@@ -96,8 +96,10 @@ def login():
                     print("good password")
                     if login_user(user,remember=True):
                         print("successful login for " + user.name)
+                        flash("successful login for " + user.name)
                         return redirect(request.args.get("next") or "/")
                         #return redirect("/")
+        flash("login failed, wrong username(email) or password")
     return render_template("login.html")
 
 @app.route("/logout")

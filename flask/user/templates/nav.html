@@ -4,5 +4,5 @@
     <a href="/logout"{% if request.path == '/logout'%} class = 'current'{% endif %}>logout</a>
     <a href="/admin"{% if request.path == '/admin'%} class = 'current'{% endif %}>admin</a>
     <a href="/register"{% if request.path == '/register'%} class = 'current'{% endif %}>register</a>
-    <a href="/mypage"{% if request.path == '/mypage'%} class = 'current'{% endif %}>{{current_user.name}} ⚙ </a>
+    <a href="/mypage"{% if request.path == '/mypage'%} class = 'current'{% endif %} style="float:right;">{{current_user.name}} ⚙ </a>
 </div>
