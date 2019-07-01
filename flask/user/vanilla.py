@@ -53,15 +53,18 @@ login_manager.setup_app(app)
 @app.route("/")
 def testfunc():
     z = "user:" + current_user.name
-    return render_template('base.html',title="home",header="home",content = z)
+    return render_template('genericpage.html',title="home",body="Welcome to the homepage")
 
 @app.route("/<path:url>")
 @fresh_login_required
 def test2(url):
-	return "user:" + current_user.name + " & your url is " + url
+    return render_template('genericpage.html',title=url,body=url)
+	#return "user:" + current_user.name + " & your url is " + url
 
 @app.route('/register', methods=["GET","POST"])
 def register():
+    if current_user.name != "Not Logged in":
+        return redirect ("/mypage")
     if request.method == 'POST':
         print(request.form['name'],request.form['password'],request.form['email'])
         if 'name' in request.form and 'password' in request.form and 'email' in request.form:
@@ -75,6 +78,8 @@ def register():
 
 @app.route("/login", methods=["GET","POST"])
 def login():
+    if current_user.name != "Not Logged in":
+        return redirect("/mypage")
     if request.method == "POST" and "username" in request.form:
         user = User.query.filter_by(email=request.form["username"]).first()
         if user != None:
@@ -111,12 +116,14 @@ def admin():
     all = User.query.all()
     for usr in all:
         p += "name:" + usr.name + ", email:" + usr.email + "<br>"
-    return "hello master<br><br>" + p
-
+    #return "hello master<br><br>" + p
+    return render_template("genericpage.html",title='admin',body=p)
 @app.route('/mypage')
 @login_required
 def userpage():
-    return
+    return render_template("genericpage.html", body=current_user.name + current_user.email)
+    # a form for changing uname and/or pword
+    z = ""
 
 if (__name__ == "__main__"):
 	app.run()
