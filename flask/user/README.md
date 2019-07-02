@@ -31,5 +31,10 @@ required installs : Flask, flask_login, flask_sqlachemy
 #
 
 
-stuff from nav 
+stuff from nav
 <a href="/login"{% if request.path == '/login'%} class = 'current'{% endif %} style="float:right;">login</a>
+
+
+{% for topic in Post.query().distinct() %}
+<a href = "/{{topic}}"{% if request.path == '/{{topic}}'%} class = 'current'{% endif %} {{topic}} </a>
+{% endfor %}

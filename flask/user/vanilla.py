@@ -8,8 +8,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 db = SQLAlchemy(app)
+
 class Post(db.Model):
     __tablename__ = "posts"
     id = db.Column(db.Integer, primary_key=True)
@@ -56,17 +56,21 @@ login_manager.anonymous_user = Anon
 login_manager.login_view = "login"
 login_manager.login_message = u"Please log in"
 login_manager.refresh_view = "reauth"
-
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
 login_manager.setup_app(app)
+def get_topics():
+    topics = Post.query.with_entities(Post.topic).distinct()
+    return topics
 
 @app.route("/")
 def testfunc():
     z = "user:" + current_user.name
-    return render_template('genericpage.html',title="home",body="Welcome to the homepage")
+    if isinstance(current_user,Anon):
+        z += "<br>is anon"
+    return render_template('genericpage.html',title="home",body="Welcome to the homepage",topics=get_topics())
 
 
 	#return "user:" + current_user.name + " & your url is " + url
@@ -83,7 +87,7 @@ def register():
                 db.session.add(new)
                 db.session.commit()
                 return "new user added "
-    return render_template("register.html")
+    return render_template("register.html",topics=get_topics())
 
 
 @app.route("/login", methods=["GET","POST"])
@@ -110,7 +114,7 @@ def login():
                         return redirect(request.args.get("next") or "/")
                         #return redirect("/")
         flash("login failed, wrong username(email) or password","alert")
-    return render_template("login.html")
+    return render_template("login.html",topics=get_topics())
 
 @app.route("/logout")
 @login_required
@@ -130,31 +134,33 @@ def admin():
     for usr in all:
         p += "name:" + usr.name + ", email:" + usr.email + "<br>"
     #return "hello master<br><br>" + p
-    return render_template("genericpage.html",title='admin',body=p)
+    return render_template("genericpage.html",title='admin',body=p,topics=get_topics())
 @app.route('/mypage')
 @login_required
 def userpage():
-    return render_template("genericpage.html", body=current_user.name +":"+ current_user.email + "This is where you will be able to change your details bruh")
+    return render_template("genericpage.html", body=current_user.name +":"+ current_user.email + "This is where you will be able to change your details bruh",topics=get_topics())
     # a form for changing uname and/or pword
     z = ""
 
 @app.route("/<path:url>")
-def test2(url):
+def topic(url):
+    print(request.path)
     #user = User.query.filter_by(email=request.form["username"]).first()
     posts = Post.query.filter_by(topic=url).all()
     if posts:
         x = ""
         for post in posts:
             x += post.title + ":" + str(post.id) + "<br>"
-        return render_template("genericpage.html", body = x,title = url)
-    return render_template("genericpage.html",body="Topic not found!",title="Error")
+        return render_template("genericpage.html", body = x,title = url,topics=get_topics())
+    return render_template("genericpage.html",body="Topic not found!",title="Error",topics=get_topics())
 #    return render_template('genericpage.html',title=url,body=url)
 @app.route("/<path:url>/<path:url2>")
-def rtcle(url,url2):
+def artcle(url,url2):
     post = Post.query.filter_by(topic=url,id=url2).first()
     if post:
-        return render_template("article.html",article_image=post.picture,article_title=post.title,article_body=post.body)
-    return render_template("genericpage.html",body="Article not found!",title="Error")
+        return render_template("article.html",article_image=post.picture,article_title=post.title,article_body=post.body,topics=get_topics())
+    return render_template("genericpage.html",body="Article not found!",title="Error",topics=get_topics())
+
 
 if (__name__ == "__main__"):
 	app.run()
