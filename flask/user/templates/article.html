@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{article_title}}</h1><br>
+<img src = '{{article_image}}' class = 'regimage'>
+<div class="card">
+    {{article_body|safe}}
+</div>
+{{body}}
+{% endblock %}

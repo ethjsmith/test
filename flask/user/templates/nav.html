@@ -1,8 +1,11 @@
 <div class = "topnav">
     <a href="/"{% if request.path == '/'%} class = 'current'{% endif %}>Home</a>
-    <a href="/login"{% if request.path == '/login'%} class = 'current'{% endif %}>login</a>
-    <a href="/logout"{% if request.path == '/logout'%} class = 'current'{% endif %}>logout</a>
-    <a href="/admin"{% if request.path == '/admin'%} class = 'current'{% endif %}>admin</a>
-    <a href="/register"{% if request.path == '/register'%} class = 'current'{% endif %}>register</a>
-    <a href="/mypage"{% if request.path == '/mypage'%} class = 'current'{% endif %} style="float:right;">{{current_user.name}} ⚙ </a>
+    {% if current_user.name == "Not Logged in"%}
+        <a href="/mypage"{% if request.path == '/mypage'%} class = 'current'{% endif %} style="float:right;">{{current_user.name}} ⚙ </a>
+        <a href="/register"{% if request.path == '/register'%} class = 'current'{% endif %} style="float:right;">register</a>
+    {% else %}
+        <a href="/logout"{% if request.path == '/logout'%} class = 'current'{% endif %} style="float:right;">logout</a>
+        <a href="/admin"{% if request.path == '/admin'%} class = 'current'{% endif %} style="float:right;">admin</a>
+        <a href="/mypage"{% if request.path == '/mypage'%} class = 'current'{% endif %} style="float:right;">{{current_user.name}} ⚙ </a>
+    {% endif %}
 </div>

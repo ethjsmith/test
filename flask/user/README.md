@@ -14,16 +14,22 @@ required installs : Flask, flask_login, flask_sqlachemy
 
 
 # ===TODO===
-# user management page (personal)
-# user management page ( all users (admin))
-# topbar change that adds your usename/login status
+# user management page (personal) (with functionality)
+# user management page ( all users (admin)) ( with functionality)
 # impliment salting
-# moves sensitive information (like secret key and hash/salt info into an external config not saved in github)
+# moves sensitive information (secret_key) into an external config not saved in github
 
 #deploy
 
 #==QOL==
 # WTF forms
 # second table for pages
-# wait, what's happening here!
-# this might end up being a real website
+
+
+#== Minor ==
+# generictemplate.html rework to markup object instead of `|safe` variable ( possible security)
+#
+
+
+stuff from nav 
+<a href="/login"{% if request.path == '/login'%} class = 'current'{% endif %} style="float:right;">login</a>

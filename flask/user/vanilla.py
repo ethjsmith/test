@@ -10,6 +10,19 @@ app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+class Post(db.Model):
+    __tablename__ = "posts"
+    id = db.Column(db.Integer, primary_key=True)
+    topic = db.Column(db.String())
+    title = db.Column(db.String())
+    picture = db.Column(db.String())
+    body = db.Column(db.String())
+
+    def __init__(self,topic,title,picture,body):
+        self.topic = topic
+        self.title = title
+        self.picture = picture
+        self.body = body
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -55,10 +68,7 @@ def testfunc():
     z = "user:" + current_user.name
     return render_template('genericpage.html',title="home",body="Welcome to the homepage")
 
-@app.route("/<path:url>")
-@fresh_login_required
-def test2(url):
-    return render_template('genericpage.html',title=url,body=url)
+
 	#return "user:" + current_user.name + " & your url is " + url
 
 @app.route('/register', methods=["GET","POST"])
@@ -96,10 +106,10 @@ def login():
                     print("good password")
                     if login_user(user,remember=True):
                         print("successful login for " + user.name)
-                        flash("successful login for " + user.name)
+                        flash("successful login for " + user.name,"notify")
                         return redirect(request.args.get("next") or "/")
                         #return redirect("/")
-        flash("login failed, wrong username(email) or password")
+        flash("login failed, wrong username(email) or password","alert")
     return render_template("login.html")
 
 @app.route("/logout")
@@ -113,8 +123,9 @@ def logout():
 @login_required
 def admin():
     p = ""
+    # High security admin page
     if current_user.email != 'a':
-        return redirect('/')
+        return redirect('/mypage')
     all = User.query.all()
     for usr in all:
         p += "name:" + usr.name + ", email:" + usr.email + "<br>"
@@ -123,9 +134,27 @@ def admin():
 @app.route('/mypage')
 @login_required
 def userpage():
-    return render_template("genericpage.html", body=current_user.name + current_user.email)
+    return render_template("genericpage.html", body=current_user.name +":"+ current_user.email + "This is where you will be able to change your details bruh")
     # a form for changing uname and/or pword
     z = ""
+
+@app.route("/<path:url>")
+def test2(url):
+    #user = User.query.filter_by(email=request.form["username"]).first()
+    posts = Post.query.filter_by(topic=url).all()
+    if posts:
+        x = ""
+        for post in posts:
+            x += post.title + ":" + str(post.id) + "<br>"
+        return render_template("genericpage.html", body = x,title = url)
+    return render_template("genericpage.html",body="Topic not found!",title="Error")
+#    return render_template('genericpage.html',title=url,body=url)
+@app.route("/<path:url>/<path:url2>")
+def rtcle(url,url2):
+    post = Post.query.filter_by(topic=url,id=url2).first()
+    if post:
+        return render_template("article.html",article_image=post.picture,article_title=post.title,article_body=post.body)
+    return render_template("genericpage.html",body="Article not found!",title="Error")
 
 if (__name__ == "__main__"):
 	app.run()
