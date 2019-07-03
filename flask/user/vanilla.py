@@ -46,6 +46,13 @@ class User(UserMixin, db.Model):
         return generate_password_hash(password)
     def check_password(self,password):
         return check_password_hash(self.password,password)
+# allows modification of user accounts
+    def change_name(self, name):
+        self.name = name
+    def change_email(self,email):
+        self.email = email
+    def change_password(self,password):
+        self.password = self.set_password(password)
 
 class Anon(AnonymousUserMixin):
 	name = u"Not Logged in"
@@ -64,6 +71,16 @@ login_manager.setup_app(app)
 def get_topics():
     topics = Post.query.with_entities(Post.topic).distinct()
     return topics
+
+def is_admin():
+    if current_user.email != 'a':
+        return True
+    return False
+
+def get_posts():
+    #(title)
+    z = Post.query.all()
+    return z
 
 @app.route("/")
 def testfunc():
@@ -126,15 +143,34 @@ def logout():
 @app.route('/admin')
 @login_required
 def admin():
-    p = ""
-    # High security admin page
-    if current_user.email != 'a':
+    if is_admin():
         return redirect('/mypage')
-    all = User.query.all()
-    for usr in all:
-        p += "name:" + usr.name + ", email:" + usr.email + "<br>"
-    #return "hello master<br><br>" + p
-    return render_template("genericpage.html",title='admin',body=p,topics=get_topics())
+    # High security admin page
+    users = User.query.all()
+    return render_template("admin.html",title='admin',topics=get_topics(),users=users,pages=get_posts())
+
+@app.route('/admin/du/<path:user>')
+@login_required
+def admin_delete_user(user):
+    if is_admin():
+        return redirect('/mypage')
+    # delete user based on email ( the user variable)
+    #might be better to ask if you're sure you want to delete this user
+    # also some kind of protection so you don't delete yourself...
+    User.query.filter_by(email=user).delete()
+    db.session.commit()
+    return redirect('/admin')
+
+@app.route('/admin/da/<path:page>')
+@login_required():
+def admin_delete_page(page):
+    if is_admin():
+        return redirect('/mypage')
+    Post.query.filter_by(title=page).delete()
+    db.session.commit()
+    return redirect('/admin')
+
+
 @app.route('/mypage')
 @login_required
 def userpage():
@@ -154,6 +190,7 @@ def topic(url):
         return render_template("genericpage.html", body = x,title = url,topics=get_topics())
     return render_template("genericpage.html",body="Topic not found!",title="Error",topics=get_topics())
 #    return render_template('genericpage.html',title=url,body=url)
+
 @app.route("/<path:url>/<path:url2>")
 def artcle(url,url2):
     post = Post.query.filter_by(topic=url,id=url2).first()
