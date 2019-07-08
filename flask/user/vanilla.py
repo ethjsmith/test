@@ -17,12 +17,17 @@ class Post(db.Model):
     title = db.Column(db.String())
     picture = db.Column(db.String())
     body = db.Column(db.String())
+    para = db.Column(db.String())
 
     def __init__(self,topic,title,picture,body):
         self.topic = topic
         self.title = title
         self.picture = picture
         self.body = body
+        self.getFirstParagraph()
+
+    def getFirstParagraph(self):
+        self.para = str(self.body.split("</p>")[0])
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -162,7 +167,7 @@ def admin_delete_user(user):
     return redirect('/admin')
 
 @app.route('/admin/da/<path:page>')
-@login_required():
+@login_required
 def admin_delete_page(page):
     if is_admin():
         return redirect('/mypage')
@@ -187,16 +192,17 @@ def topic(url):
         x = ""
         for post in posts:
             x += post.title + ":" + str(post.id) + "<br>"
-        return render_template("genericpage.html", body = x,title = url,topics=get_topics())
+        return render_template("list.html",body = x,title = url, topics = get_topics(), articles = posts)
+        #return render_template("genericpage.html", body = x,title = url,topics=get_topics())
     return render_template("genericpage.html",body="Topic not found!",title="Error",topics=get_topics())
 #    return render_template('genericpage.html',title=url,body=url)
-
 @app.route("/<path:url>/<path:url2>")
 def artcle(url,url2):
     post = Post.query.filter_by(topic=url,id=url2).first()
     if post:
-        return render_template("article.html",article_image=post.picture,article_title=post.title,article_body=post.body,topics=get_topics())
+        return render_template("article.html",art = post,topics=get_topics())
     return render_template("genericpage.html",body="Article not found!",title="Error",topics=get_topics())
+
 
 
 if (__name__ == "__main__"):

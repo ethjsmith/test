@@ -2,13 +2,13 @@
 
 {% block content %}
 
-        ---------------Accounts :---------------
+        ---------------Accounts :---------------<br>
         {% for user in users %}
             Name:{{user.name}} Email: {{user.email}}
             <a href = "/admin/du/{{user.email}}"> Delete user </a><br>
         {% endfor %}
         <br>
-        ---------------Pages: ---------------
+        ---------------Pages: ---------------<br>
             {% for page in pages%}
                 {{page.title}}
                 <a href = "/admin/da/{{page.title}}"> Delete page </a><br>
