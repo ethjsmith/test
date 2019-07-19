@@ -4,6 +4,7 @@
     <a href = "/{{topic.topic}}"{% if request.path == "/" + topic.topic %} class = 'current' {% endif %}> {{topic.topic}}</a>
 
     {% endfor %}
+    <a href = "/About"{% if request.path == '/About'%} class = 'current'{% endif %}>About Me</a>
     {% if current_user.name == "Not Logged in"%}
         <a href="/mypage"{% if request.path == '/mypage'%} class = 'current'{% endif %}  style="float:right;">{{current_user.name}} ⚙ </a>
         <a href="/register"{% if request.path == '/register'%} class = 'current'{% endif %} style="float:right;">register</a>
