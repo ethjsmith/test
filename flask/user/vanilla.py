@@ -60,7 +60,7 @@ class User(UserMixin, db.Model):
         self.password = self.set_password(password)
 
 class Anon(AnonymousUserMixin):
-	name = u"Not Logged in"
+    name = u"Not Logged in"
 
 ap.secret_key = "x9fLx81af*x90xbfx03xfaBxfcxc9r)x84x8bxd1xcafxe92x08x99x1exee8x05nt"
 login_manager = LoginManager()
@@ -98,7 +98,7 @@ def testfunc():
 def about_page():
     k = "<h1>About Me</h1><br><p>My name is Ethan Smith, and I am a CSIS student at Southern Utah University. at SUU I am also the Vice President of the cyber defence (competition) club, and a student security analyst. I love programming ( prefer Python and Java), Snowboarding during the winter, and playing lots of different video games. I also enjoy homemade IOT devices, and <br> Contact me at `ethan@esmithy.net` </p> <p> About the site: <br> This site was built as a project, just something that I like to play around with when I have some downtime between work and school. I had the idea to make a website which instead of having static html files and PHP templates, would use python to generate all the pages by chaining together string variables containing bits of html, which altogether would generate web pages. I've done a lot of things to try and make the site scalable, instead of static, and I've really enjoyed putting it together, although writing html with python syntax highlighting can be a pain sometimes! </p>"
     return render_template('genericpage.html',title="About",body=k,topics=get_topics())
-	#return "user:" + current_user.name + " & your url is " + url
+    #return "user:" + current_user.name + " & your url is " + url
 
 @ap.route('/register', methods=["GET","POST"])
 def register():
@@ -145,9 +145,9 @@ def login():
 @ap.route("/logout")
 @login_required
 def logout():
-	logout_user()
-	flash("logged out")
-	return redirect("/")
+    logout_user()
+    flash("logged out")
+    return redirect("/")
 
 @ap.route('/control')
 @login_required
@@ -175,9 +175,9 @@ def doEverything():
             print ("error?")
     return redirect('/control')
             #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[1]])
-    		#subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[2]])
-			#subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[3]])
-			#subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[4]])
+            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[2]])
+            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[3]])
+            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[4]])
 
 
 @ap.route('/admin')
@@ -241,7 +241,7 @@ def artcle(url,url2):
 
 
 if (__name__ == "__main__"):
-	ap.run()
+    ap.run()
 
 #return '<html>' + stylesheet + templ.header(0) +
 #'<h1> File share </h1> <div class = \"card\">
