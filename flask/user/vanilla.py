@@ -9,6 +9,21 @@ ap = Flask(__name__)
 ap.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite'
 ap.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(ap)
+class Comment(db.Model):
+    __tablename__ = "comments"
+    id= db.Column(db.Integer, primary_key= True)
+    title = db.Column(db.String())
+    message = db.Column(db.String())
+    poster = db.Column(db.Integer, db.ForeignKey('users.id'))
+    date = db.Column(db.String())
+    article = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    def __init__(self,title,message,poster,article):
+        self.title = title
+        self.message = message
+        self.poster = poster
+        self.article = article
+        self.date = "now(TODO)"
+
 
 class Post(db.Model):
     __tablename__ = "posts"
@@ -18,7 +33,7 @@ class Post(db.Model):
     picture = db.Column(db.String())
     body = db.Column(db.String())
     para = db.Column(db.String())
-
+    date = db.Column(db.String())
     def __init__(self,topic,title,picture,body):
         self.topic = topic
         self.title = title
@@ -86,6 +101,10 @@ def get_posts():
     #(title)
     z = Post.query.all()
     return z
+def get_comments(z):
+    comments = Comment.query.filter_by(article=z)
+    return comments
+
 
 @ap.route("/")
 def testfunc():
@@ -231,11 +250,11 @@ def topic(url):
         #return render_template("genericpage.html", body = x,title = url,topics=get_topics())
     return render_template("genericpage.html",body="Topic not found!",title="Error",topics=get_topics())
 #    return render_template('genericpage.html',title=url,body=url)
-@ap.route("/<path:url>/<path:url2>")
+@ap.route("/<path:url>/<path:url2>",methods=["GET","POST"])
 def artcle(url,url2):
     post = Post.query.filter_by(topic=url,id=url2).first()
     if post:
-        return render_template("article.html",art = post,topics=get_topics(),title=post.title)
+        return render_template("article.html",art = post,topics=get_topics(),title=post.title,comments=get_comments(post.id))
     return render_template("genericpage.html",body="Article not found!",title="Error",topics=get_topics())
 
 

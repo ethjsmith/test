@@ -15,7 +15,7 @@ required installs : Flask, flask_login, flask_sqlachemy
 ==QOL==
 . WTF forms
 . second table for pages
-. db link between articles(/content) and users 
+. db link between articles(/content) and users
 
 == Minor ==
 . generictemplate.html rework to markup object instead of `|safe` variable ( possible security)
@@ -29,7 +29,7 @@ admin functionality
 currently you can create and load the database like this :
 ```python
 from vanilla import db
-from vanilla import User,Post
+from vanilla import User,Post,Comment
 db.create_all()
 #two example users
 b = User(name='test',password='pass',email='test@b.c')
@@ -41,6 +41,9 @@ db.session.commit()
 #example of an article
 p1 = Post(topic="misc",title="Example Article",picture="/static/Pic.jpg",body="This is the body of the article, which accepts <i> HTML tags </i>")
 db.session.add(p1)
+db.session.commit()
+c = Comment(title='test',message='I love testing',poster=1,article=1)
+db.session.add(c)
 db.session.commit()
 quit()
 ```

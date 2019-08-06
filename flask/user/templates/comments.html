@@ -1,0 +1,12 @@
+<br>
+{% for c in comments%}
+    <div class = "card">
+        <h3> {{c.title}} </h3><br>
+        {{c.message}}<br>
+        <b>{{c.poster}}</b> Posted this at : <b>{{c.date}}</b>
+    </div>
+{% endfor %}
+<br>
+{% if current_user.name != "Not Logged in"%}
+    {% include 'addcomment.html' %}
+{% endif %}
