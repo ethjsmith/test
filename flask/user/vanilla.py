@@ -1,5 +1,5 @@
 
-import flask_login, hashlib
+import flask_login, hashlib, datetime
 #from flask import Flask,current_ap,g
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
@@ -14,7 +14,8 @@ class Comment(db.Model):
     id= db.Column(db.Integer, primary_key= True)
     title = db.Column(db.String())
     message = db.Column(db.String())
-    poster = db.Column(db.Integer, db.ForeignKey('users.id'))
+    # it would be better if poster was a forigen key, but this works for now 
+    poster = db.Column(db.String())
     date = db.Column(db.String())
     article = db.Column(db.Integer, db.ForeignKey('posts.id'))
     def __init__(self,title,message,poster,article):
@@ -22,7 +23,7 @@ class Comment(db.Model):
         self.message = message
         self.poster = poster
         self.article = article
-        self.date = "now(TODO)"
+        self.date = datetime.date.today()
 
 
 class Post(db.Model):
@@ -208,35 +209,35 @@ def admin():
     users = User.query.all()
     return render_template("admin.html",title='admin',topics=get_topics(),users=users,pages=get_posts())
 
-@ap.route('/admin/du/<path:user>')
+
+# admin delete driver, used for deleting any kind of content on the site
+@ap.route('/admin/<path:type>/<path:did>')
 @login_required
-def admin_delete_user(user):
+def admin_delete(type,did):
     if is_admin():
         return redirect('/mypage')
-    # delete user based on email ( the user variable)
-    #might be better to ask if you're sure you want to delete this user
-    # also some kind of protection so you don't delete yourself...
-    User.query.filter_by(email=user).delete()
+    if type == "page":
+        Post.query.filter_by(title=did).delete()
+    elif type == "user":
+        User.query.filter_by(email=did).delete()
+    elif type == "comment":
+        Comment.query.filter_by(id=did).delete()
+    else :
+        print("error lol")
     db.session.commit()
-    return redirect('/admin')
+    return redirect(request.referrer or '/admin')
+        #error monkaS
 
-@ap.route('/admin/da/<path:page>')
-@login_required
-def admin_delete_page(page):
-    if is_admin():
-        return redirect('/mypage')
-    Post.query.filter_by(title=page).delete()
-    db.session.commit()
-    return redirect('/admin')
-
-
+#This page is for a user to modify their own account
 @ap.route('/mypage')
 @login_required
 def userpage():
-    return render_template("genericpage.html", body=current_user.name +":"+ current_user.email + "This is where you will be able to change your details bruh",topics=get_topics())
+    return render_template("genericpage.html", body=current_user.name +" : "+ current_user.email + "<br>This is where you will be able to update your account if I ever get around to programming this section :) ",topics=get_topics())
     # a form for changing uname and/or pword
     z = ""
 
+
+#This section is the driver for all headings
 @ap.route("/<path:url>")
 def topic(url):
     print(request.path)
@@ -247,11 +248,18 @@ def topic(url):
         for post in posts:
             x += post.title + ":" + str(post.id) + "<br>"
         return render_template("list.html",title = url, topics = get_topics(), articles = posts)
-        #return render_template("genericpage.html", body = x,title = url,topics=get_topics())
     return render_template("genericpage.html",body="Topic not found!",title="Error",topics=get_topics())
-#    return render_template('genericpage.html',title=url,body=url)
+
+
+# This section is the driver for all generic article pages
 @ap.route("/<path:url>/<path:url2>",methods=["GET","POST"])
 def artcle(url,url2):
+    if request.method == "POST": #and "username" in request.form:
+        if 'title' in request.form and 'message' in request.form:
+            # logic for add comment
+            z = Comment(title=request.form['title'],message=request.form['message'],poster=current_user.name,article=url2)
+            db.session.add(z)
+            db.session.commit()
     post = Post.query.filter_by(topic=url,id=url2).first()
     if post:
         return render_template("article.html",art = post,topics=get_topics(),title=post.title,comments=get_comments(post.id))
@@ -259,11 +267,6 @@ def artcle(url,url2):
 
 
 
+
 if (__name__ == "__main__"):
     ap.run()
-
-#return '<html>' + stylesheet + templ.header(0) +
-#'<h1> File share </h1> <div class = \"card\">
-#<form method = \"POST\" enctype = \"multipart/form-data\"><input type = \"file\" name = \"file\" />
-#<input type = \"submit\" value = \"upload file\"/></form></div><br><div class = \"card\">' + links + '
-#</div></html>'

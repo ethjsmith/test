@@ -9,12 +9,14 @@ required installs : Flask, flask_login, flask_sqlachemy
 . user management page (personal) (with functionality)
 . allow creation of pages from admin page (?or elsewhere?)
 . moves sensitive information (secret_key) into an  external config not saved in GitHub
+. comment style
+. comment moderation ( deletable)
+. fix users deleting their own comments ( when not an admin)
 
 # deploy
 
 ==QOL==
 . WTF forms
-. second table for pages
 . db link between articles(/content) and users
 
 == Minor ==
@@ -40,9 +42,12 @@ db.session.add(a)
 db.session.commit()
 #example of an article
 p1 = Post(topic="misc",title="Example Article",picture="/static/Pic.jpg",body="This is the body of the article, which accepts <i> HTML tags </i>")
+p2 = Post(topic="misc",title="Ex2",picture="/static/Pic.jpg",body="some random placeholder text here please")
+p3 = Post(topic="a new topic appears",title="Example Article",picture="/static/Pic.jpg",body="I yote a duck off a cliff... turns out they can fly, so everything was fine")
+
 db.session.add(p1)
 db.session.commit()
-c = Comment(title='test',message='I love testing',poster=1,article=1)
+c = Comment(title='test',message='I love testing',poster="testman",article=1)
 db.session.add(c)
 db.session.commit()
 quit()
