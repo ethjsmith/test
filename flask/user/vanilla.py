@@ -14,7 +14,7 @@ class Comment(db.Model):
     id= db.Column(db.Integer, primary_key= True)
     title = db.Column(db.String())
     message = db.Column(db.String())
-    # it would be better if poster was a forigen key, but this works for now 
+    # it would be better if poster was a forigen key, but this works for now
     poster = db.Column(db.String())
     date = db.Column(db.String())
     article = db.Column(db.Integer, db.ForeignKey('posts.id'))
@@ -215,6 +215,8 @@ def admin():
 @login_required
 def admin_delete(type,did):
     if is_admin():
+        if type == 'comment':
+            return redirect('/deletecomment/' + did)
         return redirect('/mypage')
     if type == "page":
         Post.query.filter_by(title=did).delete()
@@ -226,7 +228,16 @@ def admin_delete(type,did):
         print("error lol")
     db.session.commit()
     return redirect(request.referrer or '/admin')
-        #error monkaS
+
+
+# a delete function for users to delete their own comments
+@ap.route('/deletecomment/<path:cid>')
+@login_required
+def user_delete_comment(cid):
+    if Comment.query.filter_by(id=cid).poster == current_user.name:
+        Comment.query.filter_by(id=cid).delete()
+    return redirect('/')
+
 
 #This page is for a user to modify their own account
 @ap.route('/mypage')

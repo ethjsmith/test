@@ -12,6 +12,7 @@ required installs : Flask, flask_login, flask_sqlachemy
 . comment style
 . comment moderation ( deletable)
 . fix users deleting their own comments ( when not an admin)
+. add error handling for trying to register an account with an existing email
 
 # deploy
 
