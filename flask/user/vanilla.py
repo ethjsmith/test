@@ -234,13 +234,17 @@ def admin_delete(type,did):
 @ap.route('/deletecomment/<path:cid>')
 @login_required
 def user_delete_comment(cid):
-    if Comment.query.filter_by(id=cid).poster == current_user.name:
-        Comment.query.filter_by(id=cid).delete()
+    e = Comment.query.filter_by(id=cid).first()
+    if e.poster == current_user.name:
+        nextd = Post.query.filter_by(id=e.article).first()
+        db.session.delete(e)
+        db.session.commit()
+        return redirect('/' + nextd.topic + '/' + str(nextd.id))
     return redirect('/')
 
 
 #This page is for a user to modify their own account
-@ap.route('/mypage')
+@ap.route('/mypage', methods=["GET","POST"])
 @login_required
 def userpage():
     return render_template("genericpage.html", body=current_user.name +" : "+ current_user.email + "<br>This is where you will be able to update your account if I ever get around to programming this section :) ",topics=get_topics())
