@@ -247,6 +247,8 @@ def user_delete_comment(cid):
 @ap.route('/mypage', methods=["GET","POST"])
 @login_required
 def userpage():
+    if request.method == "POST":
+
     return render_template("genericpage.html", body=current_user.name +" : "+ current_user.email + "<br>This is where you will be able to update your account if I ever get around to programming this section :) ",topics=get_topics())
     # a form for changing uname and/or pword
     z = ""
