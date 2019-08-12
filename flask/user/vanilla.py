@@ -249,7 +249,26 @@ def user_delete_comment(cid):
 def userpage():
     if request.method == "POST":
 
-    return render_template("genericpage.html", body=current_user.name +" : "+ current_user.email + "<br>This is where you will be able to update your account if I ever get around to programming this section :) ",topics=get_topics())
+        if request.form['username'] != '':
+            flash("username updated")
+            current_user.name = request.form['username']
+        if request.form['password'] != '':
+            if request.form['password'] == request.form['password2']:
+                flash("password updated")
+                current_user.change_password(request.form["password"])
+            else:
+                flash("Error, passwords don't match")
+        if request.form['email'] != '':
+            q= db.session.query(User.id).filter_by(email=request.form['email']).first()
+            if q is not None:
+                flash('error, invalid email( or already in use)')
+            else:
+                current_user.email = request.form['email']
+                flash("Email updated")
+        db.session.commit()
+
+    return render_template('userManage.html', topics=get_topics())
+    #return render_template("genericpage.html", body=current_user.name +" : "+ current_user.email + "<br>This is where you will be able to update your account if I ever get around to programming this section :) ",topics=get_topics())
     # a form for changing uname and/or pword
     z = ""
 
