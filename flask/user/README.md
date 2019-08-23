@@ -6,14 +6,13 @@ run `python vanilla.py`
 required installs : Flask, flask_login, flask_sqlachemy
 
  ===TODO===
-. user management page (personal) (with functionality)
 . allow creation of pages from admin page (?or elsewhere?)
 . moves sensitive information (secret_key) into an  external config not saved in GitHub
 . comment style
-. comment moderation ( deletable)
-. fix users deleting their own comments ( when not an admin)
 . add error handling for trying to register an account with an existing email
 
+. fix comments being incorrectly linked to accounts ? (<-- this is a big issue sort of )
+. it's probably also worth thinking about how deleting a user account should affect that user's comments, and even more so if creating articles becomes a thing
 # deploy
 
 ==QOL==
@@ -53,3 +52,4 @@ db.session.add(c)
 db.session.commit()
 quit()
 ```
+( this is literally the script I use to recreate the database every time I break it or have to make a migrating change )
