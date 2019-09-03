@@ -214,6 +214,7 @@ def admin():
 @ap.route('/admin/<path:type>/<path:did>')
 @login_required
 def admin_delete(type,did):
+    #todo : add a check that delets any comments related to a user before delting them ( or changes the primary key or smth)
     if is_admin():
         if type == 'comment':
             return redirect('/deletecomment/' + did)
