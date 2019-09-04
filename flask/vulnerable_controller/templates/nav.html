@@ -1,0 +1,11 @@
+<div class = "topnav">
+    <a href="/"{% if request.path == '/'%} class = 'current'{% endif %}>Home</a>
+    <a href="/control">lightController</a>
+    {% if current_user.name == "Not Logged In"%}
+        <a href="/login"{% if request.path == '/login'%} class = 'current'{% endif %}  style="float:right;">{{current_user.name}} ⚙ </a>
+        <a href="/register"{% if request.path == '/register'%} class = 'current'{% endif %} style="float:right;">register </a>&nbsp;&nbsp;
+    {% else %}
+        <a href="/logout"{% if request.path == '/logout'%} class = 'current'{% endif %} style="float:right;">logout</a>&nbsp;&nbsp;
+        <a href="/login"{% if request.path == '/login'%} class = 'current'{% endif %} style="float:right;">{{current_user.name}} ⚙ </a>&nbsp;&nbsp;
+    {% endif %}
+</div>
