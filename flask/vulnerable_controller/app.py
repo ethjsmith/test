@@ -1,4 +1,4 @@
-import flask_login, hashlib, datetime, subprocess
+import flask_login, hashlib, datetime, subprocess,pycamera,time
 #from flask import Flask,current_ap,g
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
@@ -159,7 +159,8 @@ def speak2():
 @login_required
 def cam(adminid):
     if int(adminid) >= 4:
-        return render_template("genericpage.html", body="camera here lol")
+        subprocess.call(["python3", "/home/pi/test/flask/vulnerable_controller/cam.py"])
+        return render_template("genericpage.html", body="<img src='pic.jpg'>")
     else:
         flash("you must be a level 4 admin to access this page !")
         return redirect("/")
