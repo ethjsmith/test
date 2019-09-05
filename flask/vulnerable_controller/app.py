@@ -126,12 +126,12 @@ def control():
         flash ("you have to be a logged in admin to acces this page!")
         return redirect("/")
 
-# this page lets you search the database for usernames... (maybe ) 
+# this page lets you search the database for usernames... (maybe )
 @app.route('/data')
 @login_required
 def data():
     if current_user.is_admin >= 2:
-
+        print("in progress")
     else:
         flash("you have to be a level 2 admin to access this page!")
         return redirect("/")
