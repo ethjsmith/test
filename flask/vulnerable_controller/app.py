@@ -150,7 +150,7 @@ def speak():
 def speak2():
     if request.method == "POST" and 'words' in request.form:
         command = 'espeak ' + '"' + request.form['words'] + '"'
-        subprocess.call(["ls"])
+        subprocess.call([command])
 
     return render_template("speak.html")
 # the piece of the function that runs the webserver
