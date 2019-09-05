@@ -1,4 +1,4 @@
-import flask_login, hashlib, datetime
+import flask_login, hashlib, datetime, subprocess
 #from flask import Flask,current_ap,g
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
@@ -122,8 +122,50 @@ def logout():
 def control():
     if current_user.is_admin >= 1:
         return render_template('genericpage.html',body="hack page lol")
-    flash ("you have to be a logged in admin to acces this page!")
-    return redirect("/")
+    else:
+        flash ("you have to be a logged in admin to acces this page!")
+        return redirect("/")
+
+# this page lets you search the database for usernames... (maybe ) 
+@app.route('/data')
+@login_required
+def data():
+    if current_user.is_admin >= 2:
+
+    else:
+        flash("you have to be a level 2 admin to access this page!")
+        return redirect("/")
+
+# this page checks to make sure a user is an admin before sending them on to the control page for speaker
+@app.route('/speaker')
+@login_required
+def speak():
+    if current_user.is_admin >= 3:
+        return redirect("/speakerControl")
+    else:
+        flash("you must be a level 3 admin to access this page!")
+        return redirect("/")
+# this is the actual control page for the speaker !
+@app.route("/speakerControl", methods=["GET","POST"])
+def speak2():
+    if request.method == "POST" and 'words' in request.form:
+        command = 'espeak ' + '"' + request.form['words'] + '"'
+        subprocess.call(["ls"])
+
+    return render_template("speak.html")
 # the piece of the function that runs the webserver
+
+@app.route('/camera/<path:adminid>')
+@login_required
+def cam(adminid):
+    if int(adminid) >= 4:
+        return render_template("genericpage.html", body="camera here lol")
+    else:
+        flash("you must be a level 4 admin to access this page !")
+        return redirect("/")
+    #f current_user.is_admin >= 4:
+    #experimental new login system
+    #print(adminid)
+
 if (__name__=="__main__"):
     app.run()
