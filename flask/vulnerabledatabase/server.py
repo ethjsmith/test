@@ -14,8 +14,10 @@ class item(db.Model):
     __tablename__ = 'items'
     id= db.Column(db.Integer, primary_key= True)
     name = db.Column(db.String())
-    def __init__(self,name):
+    isKey = db.Column(db.Integer)
+    def __init__(self,name,isKey):
         self.name = name
+        self.iskey = isKey
 
 class key(db.Model):
     id= db.Column(db.Integer, primary_key= True)
@@ -23,20 +25,25 @@ class key(db.Model):
     def __init__(self,name):
         self.name = name
 ap.secret_key = "69"
+def searchbar():
+    return '''<form method = "POST" enctype = "multipart/form-data">
+        <input type = "text" name = "q" placeholder = 'item name'/>
+        <input type = "submit" value = "search"/>
+    </form>'''
 @ap.route("/", methods = ['GET', 'POST'])
 def search():
     if request.method == 'POST':
         if q in request.form:
-            z = item.query.order_by(item.id = request['q']).all()
+            z = item.query.order_by(id = request.form['q']).all()
             x =""
             for zz in z:
                 x += str(zz.name)
-            return "stuff<br>" + x
-    z = item.query.order_by(item.id).all()
+            return searchbar() + "stuff<br>" + x
+    z = item.query.order_by(item.id,isKey=0).all()
     x =""
     for zz in z:
         x += str(zz.name)
-    return "stuff<br>" + x
+    return searchbar() + "stuff<br>" + x
 
 if (__name__ == "__main__"):
     ap.run()
