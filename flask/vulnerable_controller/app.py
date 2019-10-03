@@ -1,4 +1,4 @@
-import flask_login, hashlib, datetime, subprocess
+import flask_login, hashlib, datetime, subprocess,pycamera,time
 #from flask import Flask,current_ap,g
 from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
@@ -126,12 +126,12 @@ def control():
         flash ("you have to be a logged in admin to acces this page!")
         return redirect("/")
 
-# this page lets you search the database for usernames... (maybe ) 
+# this page lets you search the database for usernames... (maybe )
 @app.route('/data')
 @login_required
 def data():
     if current_user.is_admin >= 2:
-
+        print("in progress")
     else:
         flash("you have to be a level 2 admin to access this page!")
         return redirect("/")
@@ -150,7 +150,7 @@ def speak():
 def speak2():
     if request.method == "POST" and 'words' in request.form:
         command = 'espeak ' + '"' + request.form['words'] + '"'
-        subprocess.call(["ls"])
+        subprocess.call(["/usr/bin/espeak", request.form["words"]])
 
     return render_template("speak.html")
 # the piece of the function that runs the webserver
@@ -159,7 +159,8 @@ def speak2():
 @login_required
 def cam(adminid):
     if int(adminid) >= 4:
-        return render_template("genericpage.html", body="camera here lol")
+        subprocess.call(["python3", "/home/pi/test/flask/vulnerable_controller/cam.py"])
+        return render_template("genericpage.html", body="<img src='pic.jpg'>")
     else:
         flash("you must be a level 4 admin to access this page !")
         return redirect("/")
