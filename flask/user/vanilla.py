@@ -15,7 +15,7 @@ class Comment(db.Model):
     title = db.Column(db.String())
     message = db.Column(db.String())
     # it would be better if poster was a forigen key, but this works for now
-    poster = db.Column(db.String())
+    poster = db.ForeignKey('User.name')
     date = db.Column(db.String())
     article = db.Column(db.Integer, db.ForeignKey('posts.id'))
     def __init__(self,title,message,poster,article):
@@ -252,7 +252,16 @@ def userpage():
 
         if request.form['username'] != '':
             flash("username updated")
+            zz = Comment.query.all()
+            #zz = Comment.query.filter_by(poster="dog").all()
+            #print(zz)
+            for z in zz:
+                #update the username
+                print(z)
+                print(z.poster)
+                z.poster = request.form['username']
             current_user.name = request.form['username']
+
         if request.form['password'] != '':
             if request.form['password'] == request.form['password2']:
                 flash("password updated")
