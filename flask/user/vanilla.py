@@ -1,83 +1,18 @@
 
 import flask_login, hashlib, datetime
-#from flask import Flask,current_ap,g
-from flask import Flask, request, render_template, redirect, url_for, flash
+from importlib import import_module
+from flask import Flask, request, render_template, redirect, url_for, flash, Response
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+#Camera = import_module('camera_pi').Camera
+from dbModels import db, Anon, Comment, Post, User
 ap = Flask(__name__)
 ap.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite'
 ap.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(ap)
-class Comment(db.Model):
-    __tablename__ = "comments"
-    id= db.Column(db.Integer, primary_key= True)
-    title = db.Column(db.String())
-    message = db.Column(db.String())
-    # it would be better if poster was a forigen key, but this works for now
-    poster = db.ForeignKey('User.name')
-    date = db.Column(db.String())
-    article = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    def __init__(self,title,message,poster,article):
-        self.title = title
-        self.message = message
-        self.poster = poster
-        self.article = article
-        self.date = datetime.date.today()
+db.init_app(ap)
 
-
-class Post(db.Model):
-    __tablename__ = "posts"
-    id = db.Column(db.Integer, primary_key=True)
-    topic = db.Column(db.String())
-    title = db.Column(db.String())
-    picture = db.Column(db.String())
-    body = db.Column(db.String())
-    para = db.Column(db.String())
-    date = db.Column(db.String())
-    def __init__(self,topic,title,picture,body):
-        self.topic = topic
-        self.title = title
-        self.picture = picture
-        self.body = body
-        self.getFirstParagraph()
-
-    def getFirstParagraph(self):
-        self.para = str(self.body.split("</p>")[0])
-
-class User(UserMixin, db.Model):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    name = db.Column(db.String(100))
-
-    def __init__(self,name,password,email):
-        self.name = name
-        self.password = self.set_password(password)
-        self.email = email
-    def is_active(self):
-        return True
-    def is_user(self):
-        return False
-    def is_authenticated(self):
-        return True
-    # save password as a hash instead of plaintext
-    def set_password(self,password):
-        return generate_password_hash(password)
-    def check_password(self,password):
-        return check_password_hash(self.password,password)
-# allows modification of user accounts
-    def change_name(self, name):
-        self.name = name
-    def change_email(self,email):
-        self.email = email
-    def change_password(self,password):
-        self.password = self.set_password(password)
-
-class Anon(AnonymousUserMixin):
-    name = u"Not Logged in"
-
+# this seems like something that should be hidden lol
 ap.secret_key = "x9fLx81af*x90xbfx03xfaBxfcxc9r)x84x8bxd1xcafxe92x08x99x1exee8x05nt"
 login_manager = LoginManager()
 login_manager.anonymous_user = Anon
@@ -92,6 +27,13 @@ login_manager.setup_app(ap)
 def get_topics():
     topics = Post.query.with_entities(Post.topic).distinct()
     return topics
+
+def gen(camera):
+# generates video stream
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 def is_admin():
     if current_user.email != 'a':
@@ -185,19 +127,32 @@ def doEverything():
     if request.args.get('arg') != None:
         if request.args.get('arg') == "on":
             print("do thing 1")
+            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[1]])
         elif request.args.get('arg') == "off":
             print("do thing 2")
+            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[2]])
         elif request.args.get('arg') == "on1":
             print("do thing 3")
+            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[3]])
         elif request.args.get('arg') == "off1":
             print("do thing 4")
+            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[4]])
         else:
             print ("error?")
     return redirect('/control')
-            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[1]])
-            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[2]])
-            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[3]])
-            #subprocess.call(['/usr/local/bin/rpi-rf_send',conf[0],conf[4]])
+
+# this route is the actual video stream, the next one shows it 
+@ap.route('/video')
+@login_required
+def video():
+    return Response(gen(Camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@ap.route('/vid')
+@login_required
+# displays the video with other website contents
+def vid():
+    return render_template('stream.html')
 
 
 @ap.route('/admin')

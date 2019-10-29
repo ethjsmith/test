@@ -46,6 +46,8 @@ p2 = Post(topic="misc",title="Ex2",picture="/static/Pic.jpg",body="some random p
 p3 = Post(topic="a new topic appears",title="Example Article",picture="/static/Pic.jpg",body="I yote a duck off a cliff... turns out they can fly, so everything was fine")
 
 db.session.add(p1)
+db.session.add(p2)
+db.session.add(p3)
 db.session.commit()
 c = Comment(title='test',message='I love testing',poster="testman",article=1)
 db.session.add(c)
