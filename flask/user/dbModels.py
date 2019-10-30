@@ -1,6 +1,40 @@
+import datetime
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
+
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(100))
+    comments = db.relationship('Comment', lazy=True)
+
+    def __init__(self,name,password,email):
+        self.name = name
+        self.password = self.set_password(password)
+        self.email = email
+    def is_active(self):
+        return True
+    def is_user(self):
+        return False
+    def is_authenticated(self):
+        return True
+    # save password as a hash instead of plaintext
+    def set_password(self,password):
+        return generate_password_hash(password)
+    def check_password(self,password):
+        return check_password_hash(self.password,password)
+
+# allows modification of user accounts
+    def change_name(self, name):
+        self.name = name
+    def change_email(self,email):
+        self.email = email
+    def change_password(self,password):
+        self.password = self.set_password(password)
 
 class Comment(db.Model):
     __tablename__ = "comments"
@@ -8,7 +42,9 @@ class Comment(db.Model):
     title = db.Column(db.String())
     message = db.Column(db.String())
     # it would be better if poster was a forigen key, but this works for now
-    poster = db.ForeignKey('User.name')
+    #poster = db.column(db.Integer, db.ForeignKey('User.name')
+    #poster = db.relationship('User')
+    poster = db.column(db.Integer, db.ForeignKey('User.id'))
     date = db.Column(db.String())
     article = db.Column(db.Integer, db.ForeignKey('posts.id'))
     def __init__(self,title,message,poster,article):
@@ -37,36 +73,6 @@ class Post(db.Model):
 
     def getFirstParagraph(self):
         self.para = str(self.body.split("</p>")[0])
-
-class User(UserMixin, db.Model):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    name = db.Column(db.String(100))
-
-    def __init__(self,name,password,email):
-        self.name = name
-        self.password = self.set_password(password)
-        self.email = email
-    def is_active(self):
-        return True
-    def is_user(self):
-        return False
-    def is_authenticated(self):
-        return True
-    # save password as a hash instead of plaintext
-    def set_password(self,password):
-        return generate_password_hash(password)
-    def check_password(self,password):
-        return check_password_hash(self.password,password)
-# allows modification of user accounts
-    def change_name(self, name):
-        self.name = name
-    def change_email(self,email):
-        self.email = email
-    def change_password(self,password):
-        self.password = self.set_password(password)
 
 class Anon(AnonymousUserMixin):
     name = u"Not Logged in"
