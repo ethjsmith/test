@@ -145,12 +145,16 @@ def register():
     if request.method == 'POST':
         print(request.form['name'],request.form['password'],request.form['email'])
         if 'name' in request.form and 'password' in request.form and 'email' in request.form:
-            if request.form['password'] == request.form['password2']:
-                new = User(request.form['name'],request.form['password'],request.form['email'])
-                db.session.add(new)
-                db.session.commit()
-                flash("New user added")
-                return redirect('/login')
+            new = User.query.filter_by(email=request.form['email']).first()
+            if new == None:
+                if request.form['password'] == request.form['password2']:
+                    new = User(request.form['name'],request.form['password'],request.form['email'])
+                    db.session.add(new)
+                    db.session.commit()
+                    flash("New user added")
+                    return redirect('/login')
+            else:
+                flash("ERROR, invalid email address","alert")
     return render_template("register.html",topics=get_topics())
 
 
