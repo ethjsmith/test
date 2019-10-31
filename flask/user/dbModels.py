@@ -2,6 +2,9 @@ import datetime
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+
+#from vanilla import ap
+
 db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
@@ -10,7 +13,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
-    comments = db.relationship('Comment', lazy=True)
+    comments = db.relationship('Comment', backref ='usr', lazy='dynamic', primaryjoin="User.id == Comment.poster")
 
     def __init__(self,name,password,email):
         self.name = name
@@ -44,9 +47,9 @@ class Comment(db.Model):
     # it would be better if poster was a forigen key, but this works for now
     #poster = db.column(db.Integer, db.ForeignKey('User.name')
     #poster = db.relationship('User')
-    poster = db.column(db.Integer, db.ForeignKey('User.id'))
+    poster = db.Column(db.Integer, db.ForeignKey('users.id'))
     date = db.Column(db.String())
-    article = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    article = db.Column(db.Integer)
     def __init__(self,title,message,poster,article):
         self.title = title
         self.message = message
