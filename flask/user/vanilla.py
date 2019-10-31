@@ -1,9 +1,10 @@
 
-import flask_login, hashlib, datetime
+import flask_login, hashlib, datetime, subprocess, os
 from importlib import import_module
 from flask import Flask, request, render_template, redirect, url_for, flash, Response
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 #Camera = import_module('camera_pi').Camera
 #from dbModels import db, Anon, Comment, Post, User
@@ -103,7 +104,7 @@ def get_topics():
     topics = Post.query.with_entities(Post.topic).distinct()
     return topics
 
-#db.init(ap)
+#this function generates a video stream for the /vid, and /video paths, for video streaming
 def gen(camera):
 # generates video stream
     while True:
@@ -111,10 +112,12 @@ def gen(camera):
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+# Checks if the user is an admin, currently does this by comparing the email address
+# this is probably not a great way to do this ...
 def is_admin():
     if current_user.email != 'a':
-        return True
-    return False
+        return False
+    return True
 
 def get_posts():
     #(title)
@@ -126,7 +129,7 @@ def get_comments(z):
 
 
 @ap.route("/")
-def testfunc():
+def home():
     z = "user:" + current_user.name
     if isinstance(current_user,Anon):
         z += "<br>is anon"
@@ -194,7 +197,7 @@ def logout():
 @ap.route('/control')
 @login_required
 def control():
-    if is_admin():
+    if is_admin() == False:
         return redirect("/mypage")
     bdy = "<a href='/control/go?arg=on'>Light On</a><br><a href='/control/go?arg=off'>Light Off</a><br><a href='/control/go?arg=on1'>Fan On(This doesnt do anything)</a><br><a href='/control/go?arg=off1'>Fan Off( This ones doesn\'t either lol)</a><br></p>"
     return render_template("genericpage.html",body=bdy,topics=get_topics())
@@ -202,7 +205,7 @@ def control():
 @ap.route('/control/go')
 @login_required
 def doEverything():
-    if is_admin():
+    if is_admin() == False:
         return redirect("/mypage")
     if request.args.get('arg') != None:
         if request.args.get('arg') == "on":
@@ -222,6 +225,7 @@ def doEverything():
     return redirect('/control')
 
 # this route is the actual video stream, the next one shows it
+#TODO: learn more about the response class
 @ap.route('/video')
 @login_required
 def video():
@@ -234,11 +238,34 @@ def video():
 def vid():
     return render_template('stream.html')
 
+@ap.route('/files', methods = ['GET','POST'])
+@login_required
+def files():
+    if request.method == 'POST':
+        f=request.files['file']
+        f.save('./files/' + secure_filename(f.filename))
+    links = ""
+    uploadedfiles= os.listdir('files/')
+    for z in uploadedfiles:
+        links = links + "<a href = \"files/" + z + "\" >" + z + "</a><br>"
+    bdy = '<h1> File share </h1> <div class = \"card\"> <form method = \"POST\" enctype = \"multipart/form-data\"><input type = \"file\" name = \"file\" /><input type = \"submit\" value = \"upload file\"/></form></div><br><div class = \"card\">' + links + '</div></html>'
+    return render_template("genericpage.html",body=bdy,title="File Share",topics=get_topics())
+# delete a file in the list of file sharing section
+# if you want to add a button to do this, that's pretty easy, there's an example of it
+# in my test repo attached to the filesharing
+@ap.route('/files/d/<path:filename>')
+@login_required
+def deletefile(filename):
+    if is_admin() == False:
+        return redirect('/')
+    if os.path.exists('files/' + filename):
+        os.remove('files/' + filename)
+    return redirect('/files')
 
 @ap.route('/admin')
 @login_required
 def admin():
-    if is_admin():
+    if is_admin() == False:
         return redirect('/mypage')
     # High security admin page
     users = User.query.all()
@@ -249,8 +276,9 @@ def admin():
 @ap.route('/admin/<path:type>/<path:did>')
 @login_required
 def admin_delete(type,did):
-    #todo : add a check that delets any comments related to a user before delting them ( or changes the primary key or smth)
-    if is_admin():
+    #todo : add a check that deletes any comments related to a user before delting them ( or changes the primary key or smth)
+    # TODO: rework the redirects they should now be obsolete
+    if is_admin() == False:
         if type == 'comment':
             return redirect('/deletecomment/' + did)
         return redirect('/mypage')
@@ -270,8 +298,14 @@ def admin_delete(type,did):
 @ap.route('/deletecomment/<path:cid>')
 @login_required
 def user_delete_comment(cid):
-    e = Comment.query.filter_by(id=cid).first()
-    if e.poster == current_user.name:
+    canDelete = False
+    if is_admin() == False:
+        e = Comment.query.filter_by(id=cid).first()
+        if e.poster == current_user.name:
+            canDelete = True
+    else:
+        canDelete = True
+    if canDelete:
         nextd = Post.query.filter_by(id=e.article).first()
         db.session.delete(e)
         db.session.commit()
@@ -284,7 +318,7 @@ def user_delete_comment(cid):
 @login_required
 def userpage():
     if request.method == "POST":
-
+        # I don't really know why this doesn't break comments...
         if request.form['username'] != '':
             flash("username updated")
             #zz = Comment.query.all()

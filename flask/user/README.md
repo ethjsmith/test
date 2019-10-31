@@ -8,11 +8,11 @@ required installs : Flask, flask_login, flask_sqlachemy
  ===TODO===
 . allow creation of pages from admin page (?or elsewhere?)
 . moves sensitive information (secret_key) into an  external config not saved in GitHub
-. comment style
-. add error handling for trying to register an account with an existing email
-
-. fix comments being incorrectly linked to accounts ? (<-- this is a big issue sort of )
 . it's probably also worth thinking about how deleting a user account should affect that user's comments, and even more so if creating articles becomes a thing
+.restructure the various functions that require admin power to use ( like video?)
+== BUGS ==
+. changing your name to that of a comment makes you owner of that comment ( need to swap to primary key )
+. better admin security ? 
 # deploy
 
 ==QOL==

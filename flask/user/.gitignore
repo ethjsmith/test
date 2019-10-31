@@ -1,0 +1,8 @@
+__pycache__
+projectenv
+*.swp
+*.pyc
+secret.py
+*.save
+files/*
+webenv
