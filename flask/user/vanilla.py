@@ -56,6 +56,7 @@ class Comment(db.Model):
     #poster = db.column(db.Integer, db.ForeignKey('User.name')
     #poster = db.relationship('User')
     poster = db.Column(db.Integer, db.ForeignKey('users.id'))
+    postername = db.Column(db.String())
     date = db.Column(db.String())
     article = db.Column(db.Integer)
     def __init__(self,title,message,poster,article):
@@ -125,7 +126,11 @@ def get_posts():
     return z
 def get_comments(z):
     comments = Comment.query.filter_by(article=z)
-    return comments
+
+    #for c in comments:
+    #    usr = User.query.filter_by(id=c.poster).first()
+    #    c.postname = usr.name
+    #return comments
 
 
 @ap.route("/")
@@ -139,7 +144,6 @@ def home():
 def about_page():
     k = "<h1>About Me</h1><br><p>My name is Ethan Smith, and I am a CSIS student at Southern Utah University. at SUU I am also the Vice President of the cyber defence (competition) club, and a student security analyst. I love programming ( prefer Python and Java), Snowboarding during the winter, and playing lots of different video games. I also enjoy homemade IOT devices, and <br> Contact me at `ethan@esmithy.net` </p> <p> About the site: <br> This site was built as a project, just something that I like to play around with when I have some downtime between work and school. I had the idea to make a website which instead of having static html files and PHP templates, would use python to generate all the pages by chaining together string variables containing bits of html, which altogether would generate web pages. I've done a lot of things to try and make the site scalable, instead of static, and I've really enjoyed putting it together, although writing html with python syntax highlighting can be a pain sometimes! </p>"
     return render_template('genericpage.html',title="About",body=k,topics=get_topics())
-    #return "user:" + current_user.name + " & your url is " + url
 
 @ap.route('/register', methods=["GET","POST"])
 def register():
@@ -177,13 +181,11 @@ def login():
             if username  == user.email:
                 print("username is an email")
                 if user.check_password(pas):
-                #if pas == user.password:
                     print("good password")
                     if login_user(user,remember=True):
                         print("successful login for " + user.name)
                         flash("successful login for " + user.name,"notify")
                         return redirect(request.args.get("next") or "/")
-                        #return redirect("/")
         flash("login failed, wrong username(email) or password","alert")
     return render_template("login.html",topics=get_topics())
 
@@ -267,7 +269,6 @@ def deletefile(filename):
 def admin():
     if is_admin() == False:
         return redirect('/mypage')
-    # High security admin page
     users = User.query.all()
     return render_template("admin.html",title='admin',topics=get_topics(),users=users,pages=get_posts())
 
@@ -301,7 +302,7 @@ def user_delete_comment(cid):
     canDelete = False
     if is_admin() == False:
         e = Comment.query.filter_by(id=cid).first()
-        if e.poster == current_user.name:
+        if e.poster == current_user.id:
             canDelete = True
     else:
         canDelete = True
@@ -319,16 +320,18 @@ def user_delete_comment(cid):
 def userpage():
     if request.method == "POST":
         # I don't really know why this doesn't break comments...
+
+        # update, I don't know why this works at all wtf
         if request.form['username'] != '':
             flash("username updated")
             #zz = Comment.query.all()
-            zz = Comment.query.filter_by(poster=current_user.name).all()
+            zz = Comment.query.filter_by(poster=current_user.id).all()
             #print(zz)
             for z in zz:
                 #update the username
                 print(z)
                 print(z.poster)
-                z.poster = request.form['username']
+                z.postername = request.form['username']
             current_user.name = request.form['username']
 
         if request.form['password'] != '':
@@ -372,7 +375,7 @@ def artcle(url,url2):
     if request.method == "POST": #and "username" in request.form:
         if 'title' in request.form and 'message' in request.form:
             # logic for add comment
-            z = Comment(title=request.form['title'],message=request.form['message'],poster=current_user.name,article=url2)
+            z = Comment(title=request.form['title'],message=request.form['message'],poster=current_user.id,postername = current_user.name, article=url2)
             db.session.add(z)
             db.session.commit()
     post = Post.query.filter_by(topic=url,id=url2).first()

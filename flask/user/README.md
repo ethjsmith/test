@@ -12,7 +12,7 @@ required installs : Flask, flask_login, flask_sqlachemy
 .restructure the various functions that require admin power to use ( like video?)
 == BUGS ==
 . changing your name to that of a comment makes you owner of that comment ( need to swap to primary key )
-. better admin security ? 
+. better admin security ?
 # deploy
 
 ==QOL==
@@ -49,8 +49,8 @@ db.session.add(p1)
 db.session.add(p2)
 db.session.add(p3)
 db.session.commit()
-c = Comment(title='test',message='I love testing',poster="testman",article=1)
-db.session.add(c)
+#c = Comment(title='test',message='I love testing',poster="testman",article=1)
+#db.session.add(c)
 db.session.commit()
 quit()
 ```
