@@ -1,0 +1,25 @@
+{#Ethan Smith#}
+{# This is a page template, which the whole website uses, that's how it shares a common nav at the top #}
+
+
+<!doctype html>
+<html>
+  <head>
+    <title> CS3200 application </title>
+  </head>
+  <style>
+table, th, td {
+  border: 1px solid black;
+}
+</style>
+  <header>
+    <a href="/"> Home </a><br>
+    <a href='/rooms'> rooms </a><br>
+    <a href='hotels'> Hotels </a><br>
+    <a href='/reservations'> Reservations </a><br>
+  </header>
+  <body>
+    {% block bdy %}
+    {% endblock %}
+  </body>
+</html>

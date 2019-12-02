@@ -1,0 +1,21 @@
+{#Ethan Smith#}
+{# This template builds upon main, but puts a table into the body section #}
+{% extends 'main.html' %}
+
+{% block bdy %}
+<table>
+<tr>
+{% for x in tableheadings %}
+<th>{{x}}</th>
+{% endfor %}
+</tr>
+{% for x in content%}
+<tr>
+  {% for xx in x %}
+
+    <th>{{xx}}</th>
+  {% endfor %}
+</tr>
+{% endfor %}
+<table>
+{% endblock %}
