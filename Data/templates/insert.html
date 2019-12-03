@@ -1,0 +1,12 @@
+{% extends 'main.html' %}
+
+{% block bdy %}
+<form method = "POST" enctype = "multipart/form-data">
+<select name = "table">
+    {% for x in content %}
+        <option value ={{x}}>{{x}}</option>
+    {% endfor %}
+</select>
+    <input type = "submit" value = "select Table"/>
+</form>
+{% endblock %}

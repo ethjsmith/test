@@ -1,0 +1,10 @@
+{% extends 'main.html' %}
+
+{% block bdy %}
+<form method = "POST" enctype = "multipart/form-data">
+    {% for x in content %}
+        <input type="text" name = '{{x}}' /> {{x[0]}} ({{x[1]}}) <br>
+    {% endfor %}
+    <input type = "submit" value = "insert new data!"/>
+</form>
+{% endblock %}

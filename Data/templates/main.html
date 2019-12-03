@@ -14,11 +14,19 @@ table, th, td {
 </style>
   <header>
     <a href="/"> Home </a><br>
-    <a href='/rooms'> rooms </a><br>
-    <a href='hotels'> Hotels </a><br>
-    <a href='/reservations'> Reservations </a><br>
+    <a href='/s/rooms'> rooms </a><br>
+    <a href='/s/hotel'> Hotels </a><br>
+    <a href='/s/reservation'> Reservations </a><br>
+    <a href='/s/customers'> Customers </a><br>
+    <a href="/s/staff"> Staff </a> <br>
+    <br>
+    <a href='/search'> Search </a><br>
+    <a href="/insert"> Add something new </a><br>
   </header>
   <body>
+      <br>
+      {{stuff}}
+      <br>
     {% block bdy %}
     {% endblock %}
   </body>
