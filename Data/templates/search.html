@@ -1,0 +1,10 @@
+{% extends 'main.html' %}
+
+{% block bdy %}
+<form method = "POST" enctype = "multipart/form-data">
+    <input type = "text" name = "table" /> Tablename <br>
+    <input type = "text" name = 'atribute' /> atribute <br>
+    <input type = "text" name = "value" /> value <br>
+    <input type = "submit" value = "search"/>
+</form>
+{% endblock %}
