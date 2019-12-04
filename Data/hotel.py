@@ -1,4 +1,4 @@
-#Author Ethan Smith
+#Authors Ethan Smith, Alex JoNes, Corbin Robinson
 
 from flask import Flask, render_template, redirect,request
 import mysql.connector
@@ -15,6 +15,8 @@ app = Flask(__name__)
 print(db)#debugging
 c = db.cursor()
 # a method that will generate the data of generic pages
+def gen2page(ttable1,ttable2, tatribute=1,tvalue=1):
+    c.execute("SELECT * FROM " + str(ttable) + " where " + str(tatribute) + " = \"" + str(tvalue) + "\" left join " + ttable2 + "on ")
 def genpage(ttable, tatribute=1,tvalue=1):
     c.execute("describe " + ttable)
     z = c.fetchall()
@@ -27,7 +29,7 @@ def genpage(ttable, tatribute=1,tvalue=1):
 
 @app.route("/")
 def homepage():
-    return render_template("main.html",stuff="Welcome to the homepage")
+    return render_template("main.html",stuff="Welcome to the homepage, see when staff is working, or see rooms in a hotel by going to that specific url or something... I hate CSS ")
 
 @app.route("/insert", methods=["GET","POST"])
 def insert():
@@ -93,11 +95,38 @@ def search():
 @app.route("/hotelManager")
 def hotMan():
     return render_template("main.html")
-
-
-
+# with this you can delete any record
+@app.route("/delete/<path:tablename>/<path:property>/<path:id>")
+def dele(tablename,prop,id):
+    try:
+        c.execute("delete from " + tablename + " where " + prop + "  = " + id + ";")
+        db.commit()
+        return render_template("main.html",stuff="Record deleted ! ")
+    except:
+        return render_template("main.html",stuff="ERROR, record could not be deleted!")
 # requried : show tables
 # no way to sort these tho
+@app.route("/hotelM")
+def hoes():
+    c.execute("select * from staff s left join hotel h on s.staffid = h.managerid")
+    z = c.fetchall()
+    return render_template("main.html",stuff=z)
+@app.route("/rooms/<path:hotel>")
+def rooms_hotel(hotel):
+    ct = genpage("rooms","hotel",hotel)
+    return render_template("table.html",tableheadings=ct[1],content=ct[0])
+
+@app.route("/reservationsearch/<path:nameLOL>")
+def resSearch(nameLOL):
+    ct = genpage("reservation","customerid",nameLOL)
+    return render_template("table.html",tableheadings=ct[1],content=ct[0])
+
+@app.route("/staffworking/<path:time>")
+def staffWorking(time):
+    ct = genpage("staff","shift",time)
+    return render_template("table.html",tableheadings=ct[1],content=ct[0])
+
+
 @app.route("/s/<path:page>")
 def generic(page):
     c.execute('show tables;')
