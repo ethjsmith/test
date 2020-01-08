@@ -1,6 +1,6 @@
 <div class = "topnav">
     <a href="/"{% if request.path == '/'%} class = 'current'{% endif %}>Home</a>
-    {% for topic in topics %}
+    {% for topic in getTopics() %}
     <a href = "/{{topic.topic}}"{% if request.path == "/" + topic.topic %} class = 'current' {% endif %}> {{topic.topic}}</a>
 
     {% endfor %}

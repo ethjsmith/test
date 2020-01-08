@@ -1,7 +1,7 @@
 
 import flask_login, hashlib, datetime, subprocess, os
 from importlib import import_module
-from flask import Flask, request, render_template, redirect, url_for, flash, Response
+from flask import Flask, request, render_template, redirect, url_for, flash, Response, g, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, AnonymousUserMixin, confirm_login, fresh_login_required
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
@@ -59,10 +59,11 @@ class Comment(db.Model):
     postername = db.Column(db.String())
     date = db.Column(db.String())
     article = db.Column(db.Integer)
-    def __init__(self,title,message,poster,article):
+    def __init__(self,title,message,poster,postername,article):
         self.title = title
         self.message = message
         self.poster = poster
+        self.postername = postername
         self.article = article
         self.date = datetime.date.today()
 
@@ -101,9 +102,7 @@ def load_user(id):
     return User.query.get(int(id))
 
 login_manager.setup_app(ap)
-def get_topics():
-    topics = Post.query.with_entities(Post.topic).distinct()
-    return topics
+
 
 #this function generates a video stream for the /vid, and /video paths, for video streaming
 def gen(camera):
@@ -120,17 +119,24 @@ def is_admin():
         return False
     return True
 
-def get_posts():
-    #(title)
-    z = Post.query.all()
-    return z
-def get_comments(z):
-    comments = Comment.query.filter_by(article=z)
-
-    #for c in comments:
-    #    usr = User.query.filter_by(id=c.poster).first()
-    #    c.postname = usr.name
-    #return comments
+@ap.context_processor
+def giveFunctions():
+    def getPosts():
+        z = Post.query.all()
+        return z
+    def getTopics():
+        topics = Post.query.with_entities(Post.topic).distinct()
+        return topics
+    def getComments(z):
+        comments = Comment.query.filter_by(article=z)
+        return comments
+    def getFiles():
+        x=[]
+        uploadedfiles= os.listdir('static/')
+        for z in uploadedfiles:
+            x.append(str(z))
+        return x
+    return dict(getPosts=getPosts,getTopics=getTopics,getComments=getComments,getFiles=getFiles)
 
 
 @ap.route("/")
@@ -138,12 +144,12 @@ def home():
     z = "user:" + current_user.name
     if isinstance(current_user,Anon):
         z += "<br>is anon"
-    return render_template('genericpage.html',title="home",body="Welcome to the homepage",topics=get_topics())
+    return render_template('genericpage.html',title="home",body="Welcome to the homepage")
 
 @ap.route('/About')
 def about_page():
     k = "<h1>About Me</h1><br><p>My name is Ethan Smith, and I am a CSIS student at Southern Utah University. at SUU I am also the Vice President of the cyber defence (competition) club, and a student security analyst. I love programming ( prefer Python and Java), Snowboarding during the winter, and playing lots of different video games. I also enjoy homemade IOT devices, and <br> Contact me at `ethan@esmithy.net` </p> <p> About the site: <br> This site was built as a project, just something that I like to play around with when I have some downtime between work and school. I had the idea to make a website which instead of having static html files and PHP templates, would use python to generate all the pages by chaining together string variables containing bits of html, which altogether would generate web pages. I've done a lot of things to try and make the site scalable, instead of static, and I've really enjoyed putting it together, although writing html with python syntax highlighting can be a pain sometimes! </p>"
-    return render_template('genericpage.html',title="About",body=k,topics=get_topics())
+    return render_template('genericpage.html',title="About",body=k)
 
 @ap.route('/register', methods=["GET","POST"])
 def register():
@@ -158,11 +164,11 @@ def register():
                     new = User(request.form['name'],request.form['password'],request.form['email'])
                     db.session.add(new)
                     db.session.commit()
-                    flash("New user added")
+                    flash("New user added",category='info')
                     return redirect('/login')
             else:
-                flash("ERROR, invalid email address","alert")
-    return render_template("register.html",topics=get_topics())
+                flash("ERROR, invalid email address",category ='error')
+    return render_template("register.html")
 
 
 @ap.route("/login", methods=["GET","POST"])
@@ -184,16 +190,16 @@ def login():
                     print("good password")
                     if login_user(user,remember=True):
                         print("successful login for " + user.name)
-                        flash("successful login for " + user.name,"notify")
+                        flash("successful login for " + user.name,category='info')
                         return redirect(request.args.get("next") or "/")
-        flash("login failed, wrong username(email) or password","alert")
-    return render_template("login.html",topics=get_topics())
+        flash("login failed, wrong username(email) or password",category ='error')
+    return render_template("login.html")
 
 @ap.route("/logout")
 @login_required
 def logout():
     logout_user()
-    flash("logged out")
+    flash("logged out",category='info')
     return redirect("/")
 
 @ap.route('/control')
@@ -202,7 +208,7 @@ def control():
     if is_admin() == False:
         return redirect("/mypage")
     bdy = "<a href='/control/go?arg=on'>Light On</a><br><a href='/control/go?arg=off'>Light Off</a><br><a href='/control/go?arg=on1'>Fan On(This doesnt do anything)</a><br><a href='/control/go?arg=off1'>Fan Off( This ones doesn\'t either lol)</a><br></p>"
-    return render_template("genericpage.html",body=bdy,topics=get_topics())
+    return render_template("genericpage.html",body=bdy)
 
 @ap.route('/control/go')
 @login_required
@@ -240,18 +246,21 @@ def video():
 def vid():
     return render_template('stream.html')
 
+# this method allows uploading files to the server's static file... I think it's probably a really bad idea, but I wanted to see if I could do it... also it allows for creating new articles
 @ap.route('/files', methods = ['GET','POST'])
 @login_required
 def files():
     if request.method == 'POST':
         f=request.files['file']
-        f.save('./files/' + secure_filename(f.filename))
+        f.save('./static/' + secure_filename(f.filename))
     links = ""
-    uploadedfiles= os.listdir('files/')
+    uploadedfiles= os.listdir('static/')
     for z in uploadedfiles:
-        links = links + "<a href = \"files/" + z + "\" >" + z + "</a><br>"
+        # some exceptions that shouldn't be visible
+        if str(z) != "style.css" and str(z) != "favicon.png" and not str(z).startswith('.'):
+            links = links + "<a href = \"static/" + z + "\" >" + z + "</a><br>"
     bdy = '<h1> File share </h1> <div class = \"card\"> <form method = \"POST\" enctype = \"multipart/form-data\"><input type = \"file\" name = \"file\" /><input type = \"submit\" value = \"upload file\"/></form></div><br><div class = \"card\">' + links + '</div></html>'
-    return render_template("genericpage.html",body=bdy,title="File Share",topics=get_topics())
+    return render_template("genericpage.html",body=bdy,title="File Share")
 # delete a file in the list of file sharing section
 # if you want to add a button to do this, that's pretty easy, there's an example of it
 # in my test repo attached to the filesharing
@@ -270,7 +279,27 @@ def admin():
     if is_admin() == False:
         return redirect('/mypage')
     users = User.query.all()
-    return render_template("admin.html",title='admin',topics=get_topics(),users=users,pages=get_posts())
+    return render_template("admin.html",title='admin',users=users)
+
+
+# crete a new article
+@ap.route('/create', methods=['GET','POST'])
+@login_required
+def create():
+    if is_admin() == False:
+        return redirect("/")
+    if request.method == "POST":
+        if request.form['title'] != "" and request.form['body'] != '' and request.form['picture'] != '.gitignore':
+            # create the new article here :)
+
+            # return redirect ('new article ;) ')
+            print("they all there")
+        else:
+            print("miss me with that ")
+        for x in request.form:
+            print(request.form[x])
+    return render_template('addArticle.html')
+
 
 
 # admin delete driver, used for deleting any kind of content on the site
@@ -286,7 +315,11 @@ def admin_delete(type,did):
     if type == "page":
         Post.query.filter_by(title=did).delete()
     elif type == "user":
-        User.query.filter_by(email=did).delete()
+        cmt = Comment.query.filter_by(poster=did).all()
+        for c in cmt:
+            c.poster = 1
+            c.postername = "~Deleted User~"
+        User.query.filter_by(id=did).delete()
     elif type == "comment":
         Comment.query.filter_by(id=did).delete()
     else :
@@ -319,43 +352,35 @@ def user_delete_comment(cid):
 @login_required
 def userpage():
     if request.method == "POST":
-        # I don't really know why this doesn't break comments...
-
-        # update, I don't know why this works at all wtf
         if request.form['username'] != '':
-            flash("username updated")
-            #zz = Comment.query.all()
+            flash("username updated",category='info')
             zz = Comment.query.filter_by(poster=current_user.id).all()
-            #print(zz)
             for z in zz:
                 #update the username
                 print(z)
                 print(z.poster)
                 z.postername = request.form['username']
             current_user.name = request.form['username']
-
+        # Update passwords
         if request.form['password'] != '':
             if request.form['password'] == request.form['password2']:
-                flash("password updated")
+                flash("password updated",category='info')
                 current_user.change_password(request.form["password"])
             else:
-                flash("Error, passwords don't match")
+                flash("Error, passwords don't match",category ='error')
+        # Update email
         if request.form['email'] != '':
             q= db.session.query(User.id).filter_by(email=request.form['email']).first()
             if q is not None:
-                flash('error, invalid email( or already in use)')
+                flash('error, invalid email( or already in use)',category ='error')
             else:
                 current_user.email = request.form['email']
-                flash("Email updated")
+                flash("Email updated",category='info')
         db.session.commit()
 
-    return render_template('userManage.html', topics=get_topics())
-    #return render_template("genericpage.html", body=current_user.name +" : "+ current_user.email + "<br>This is where you will be able to update your account if I ever get around to programming this section :) ",topics=get_topics())
-    # a form for changing uname and/or pword
-    z = ""
+    return render_template('userManage.html')
 
-
-#This section is the driver for all headings
+#This section is the driver for all headings( article summaries)
 @ap.route("/<path:url>")
 def topic(url):
     print(request.path)
@@ -365,8 +390,8 @@ def topic(url):
         x = ""
         for post in posts:
             x += post.title + ":" + str(post.id) + "<br>"
-        return render_template("list.html",title = url, topics = get_topics(), articles = posts)
-    return render_template("genericpage.html",body="Topic not found!",title="Error",topics=get_topics())
+        return render_template("list.html",title = url, articles = posts)
+    return render_template("genericpage.html",body="Topic not found!",title="Error")
 
 
 # This section is the driver for all generic article pages
@@ -380,8 +405,8 @@ def artcle(url,url2):
             db.session.commit()
     post = Post.query.filter_by(topic=url,id=url2).first()
     if post:
-        return render_template("article.html",art = post,topics=get_topics(),title=post.title,comments=get_comments(post.id))
-    return render_template("genericpage.html",body="Article not found!",title="Error",topics=get_topics())
+        return render_template("article.html",art = post,title=post.title,pidd=post.id)
+    return render_template("genericpage.html",body="Article not found!",title="Error")
 
 
 

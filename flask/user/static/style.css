@@ -27,10 +27,17 @@
   background-color: white;
   padding: 20px;
 }
-.alert {
-  background-color: #d4c450;
+.error {
+  color: black;
+  background-color: #FFCCCC;
   padding: 20px;
   border-radius: 10px;
+}
+.info,.message {
+    color: black;
+    background-color: #7dcb5f;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 body {
