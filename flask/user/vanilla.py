@@ -223,13 +223,22 @@ def create():
     if request.method == "POST":
         if request.form['title'] != "" and request.form['body'] != '' and request.form['picture'] != '.gitignore':
             # create the new article here :)
-            art = Post(topic = request.form['topic'],title=request.form['title'],picture='/static/' + request.form['picture'],body=request.form['body'])
+            if request.form['topic'] == '_newTopic':
+                art = Post(topic = request.form['newTopic'],title=request.form['title'],picture='/static/' + request.form['picture'],body=request.form['body'])
+            else:
+                art = Post(topic = request.form['topic'],title=request.form['title'],picture='/static/' + request.form['picture'],body=request.form['body'])
             db.session.add(art)
             db.session.commit()
             flash("successfully created new article",category='info')
         else:
             flash("error, missing required portion, or using invalid Image",category='error')
     return render_template('addArticle.html')
+
+# @ap.route('/newTopic/<path:topicname>', methods=['GET','POST'])
+# @login_required
+# def makeTopic(topicname):
+#     if is_admin() == False:
+#         return redirect('/')
 
 
 
@@ -247,14 +256,17 @@ def admin_delete(type,did):
     if type == "post":
         Comment.query.filter_by(article=did).delete()
         Post.query.filter_by(id=did).delete()
+        db.session.commit()
     elif type == "user":
         cmt = Comment.query.filter_by(poster=did).all()
         for c in cmt:
             c.poster = 1
             c.postername = "~Deleted User~"
         User.query.filter_by(id=did).delete()
+        db.session.commit()
     elif type == "comment":
         Comment.query.filter_by(id=did).delete()
+        db.session.commit()
     else :
         print("ERROR while trying to delete :" + type +","+ did)
     db.session.commit()

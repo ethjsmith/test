@@ -12,11 +12,12 @@
         {% endfor %}
     </select>Picture to use<br>
     <select name = 'topic'>
+        <option value = '_newTopic'>New Topic</option>
         {% for topic in getTopics() %}
         <option value ="{{topic.topic}}">{{topic.topic}}</option>
         {% endfor %}
     </select>Topic to list under<br>
-
+    <input type = "text" name = "newTopic" placeholder = 'or enter a new topic :( '/><br>
     <input type = "submit" value = "Create!"/>
 </form>
 </div><br>
