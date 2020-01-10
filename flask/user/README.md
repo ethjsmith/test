@@ -6,12 +6,11 @@ run `python vanilla.py`
 required installs : Flask, flask_login, flask_sqlachemy
 
  ===TODO===
-. allow creation of pages from admin page (?or elsewhere?)
 . moves sensitive information (secret_key) into an  external config not saved in GitHub
-. it's probably also worth thinking about how deleting a user account should affect that user's comments, and even more so if creating articles becomes a thing
 .restructure the various functions that require admin power to use ( like video?)
+Standardize naming conventions ( specifically Post/Article)
+improve ability to add paragraphs to articles ?
 == BUGS ==
-. changing your name to that of a comment makes you owner of that comment ( need to swap to primary key )
 . better admin security ?
 # deploy
 
@@ -23,22 +22,21 @@ required installs : Flask, flask_login, flask_sqlachemy
 . generictemplate.html rework to markup object instead of `|safe` variable ( possible security)
 
 
-admin functionality
-.add articles
-.delete files (?)
+==admin functionality==
 .manage Users
 
 currently you can create and load the database like this :
 ```python
+from models import User,Post,Comment,Anon
 from vanilla import db
-from vanilla import User,Post,Comment
+
 db.create_all()
 #two example users
 b = User(name='test',password='pass',email='test@b.c')
 a = User(name='ethan',password='password',email='a')
 # add and save the users
-db.session.add(b)
 db.session.add(a)
+db.session.add(b)
 db.session.commit()
 #example of an article
 p1 = Post(topic="misc",title="Example Article",picture="/static/Pic.jpg",body="This is the body of the article, which accepts <i> HTML tags </i>")
