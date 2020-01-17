@@ -5,11 +5,13 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+#from vanilla import db
+from vanilla import db
+#db = SQLAlchemy()
 
-db = SQLAlchemy()
 class User(UserMixin, db.Model):
     '''User database model, created by new user (name,password,email)'''
-    __tablename__ = "users"
+    __tablename__ = "User"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
@@ -42,11 +44,11 @@ class User(UserMixin, db.Model):
 
 class Comment(db.Model):
     '''Comment Database model, has more complicated foriegn keys, and so should only be created by the scripts attacked to the /?/? post route'''
-    __tablename__ = "comments"
+    __tablename__ = "Comment"
     id= db.Column(db.Integer, primary_key= True)
     title = db.Column(db.String())
     message = db.Column(db.String())
-    poster = db.Column(db.Integer, db.ForeignKey('users.id'))
+    poster = db.Column(db.Integer, db.ForeignKey('User.id'))
     postername = db.Column(db.String())
     date = db.Column(db.String())
     article = db.Column(db.Integer)
@@ -60,7 +62,7 @@ class Comment(db.Model):
 
 
 class Post(db.Model):
-    __tablename__ = "posts"
+    __tablename__ = "Post"
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String())
     title = db.Column(db.String())
@@ -78,5 +80,24 @@ class Post(db.Model):
     def getFirstParagraph(self):
         self.para = str(self.body.split("</p>")[0])
 
-class Anon(AnonymousUserMixin):
-    name = u"Not Logged in"
+
+
+def init_db():
+    # creates a test database with some test articles 
+    db.create_all()
+    b = User(name='test',password='pass',email='test@b.c')
+    a = User(name='ethan',password='password',email='a')
+    # add and save the users
+    db.session.add(a)
+    db.session.add(b)
+    p1 = Post(topic="misc",title="Example Article",picture="/static/Pic.jpg",body="This is the body of the article, which accepts <i> HTML tags </i>")
+    p2 = Post(topic="misc",title="Ex2",picture="/static/Pic.jpg",body="some random placeholder text here please")
+    p3 = Post(topic="a new topic appears",title="Example Article",picture="/static/Pic.jpg",body="I yote a duck off a cliff... turns out they can fly, so everything was fine")
+
+    db.session.add(p1)
+    db.session.add(p2)
+    db.session.add(p3)
+    db.session.commit()
+
+if __name__ == '__main__':
+    init_db()

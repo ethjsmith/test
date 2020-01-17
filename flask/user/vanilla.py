@@ -6,7 +6,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User, Comment, Post, Anon
+
 #Camera = import_module('camera_pi').Camera
 ap = Flask(__name__)
 ap.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db.sqlite'
@@ -15,9 +15,10 @@ ap.secret_key = "x9fLx81af*x90xbfx03xfaBxfcxc9r)x84x8bxd1xcafxe92x08x99x1exee8x0
 
 
 db = SQLAlchemy(ap)
-
-
-
+#db.init_app(ap)
+#from models import User, Comment, Post
+class Anon(AnonymousUserMixin):
+    name = u"Not Logged in"
 login_manager = LoginManager()
 login_manager.anonymous_user = Anon
 login_manager.login_view = "login"
