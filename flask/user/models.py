@@ -6,8 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 #from vanilla import db
-from vanilla import db
-#db = SQLAlchemy()
+#from vanilla import db
+db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     '''User database model, created by new user (name,password,email)'''
@@ -83,7 +83,8 @@ class Post(db.Model):
 
 
 def init_db():
-    # creates a test database with some test articles 
+    # creates a test database with some test articles
+    db.drop_all()
     db.create_all()
     b = User(name='test',password='pass',email='test@b.c')
     a = User(name='ethan',password='password',email='a')
