@@ -27,13 +27,13 @@ improve ability to add paragraphs to articles ?
 
 currently you can create and load the database like this :
 ```python
-from models import User,Post,Comment,Anon
+from vanilla import User,Post,Comment,Anon
 from vanilla import db
 
 db.create_all()
 #two example users
 b = User(name='test',password='pass',email='test@b.c')
-a = User(name='ethan',password='password',email='a')
+a = User(name='ethan',password='password',email='a',permission=999)
 # add and save the users
 db.session.add(a)
 db.session.add(b)

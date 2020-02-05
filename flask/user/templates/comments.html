@@ -5,7 +5,7 @@
         <h4> {{c.title}} </h4><br>
         {{c.message}}<br>
         <b>{{c.postername}}</b> Posted this on : <b>{{c.date}}</b>
-        {% if current_user.id == 2 or current_user.id == c.poster%}
+        {% if current_user.permission > 9 or current_user.id == c.poster%}
             <a href='/admin/comment/{{c.id}}'>Delete</a>
         {% endif %}
     </div><br>

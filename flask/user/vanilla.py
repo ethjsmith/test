@@ -27,11 +27,13 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
     comments = db.relationship('Comment', backref ='usr', lazy='dynamic', primaryjoin="User.id == Comment.poster")
+    permission = db.Column(db.Integer)
 
-    def __init__(self,name,password,email):
+    def __init__(self,name,password,email,permission=0):
         self.name = name
         self.password = self.set_password(password)
         self.email = email
+        self.permission = permission
     def is_active(self):
         return True
     def is_user(self):
@@ -68,7 +70,7 @@ class Comment(db.Model):
         self.poster = poster
         self.postername = postername
         self.article = article
-        self.date = datetime.date.today()
+        self.date = datetime.date.today().strftime('%b %d, %Y')
 
 
 class Post(db.Model):
@@ -115,10 +117,32 @@ def gen(camera):
 # Checks if the user is an admin, currently does this by comparing the email address
 # this is probably not a great way to do this ...
 def is_admin():
-    if current_user.email != 'a':
+    #if current_user.email != 'a':
+    #print("current perms=" + current_user.permission)
+    if current_user.permission < 10:
         return False
     return True
+def admin_required(f):
+    def wrap(*args, **kwargs):
+        if current_user.email == 'a':
+            return f(*args, **kwargs)
+        else:
+            print("user not authorized for this page ")
+            return redirect("/mypage")
+    wrap.__name__=f.__name__
+    return wrap
 
+# def login_required(f):
+#     def wrap(*args, **kwargs):
+#         if 'user_id' in session:
+#             return f(*args, **kwargs)
+#         else:
+#             flash("Please log in ",category='info')
+#             #return redirect("/login")
+#             #print(request.url)
+#             return redirect(url_for('login', next = request.url))
+#     wrap.__name__ = f.__name__
+#     return wrap
 #Context processor makes functions and variable available to the app ( most importantly for my usage, the templates)
 @ap.context_processor
 def giveFunctions():
@@ -204,18 +228,16 @@ def logout():
 # Protected route control , allows admin users to control the lights, and other radio devices connected to the web host
 @ap.route('/control')
 @login_required
+@admin_required
 def control():
-    if is_admin() == False:
-        return redirect("/mypage")
     bdy = "<a href='/control/go?arg=on'>Light On</a><br><a href='/control/go?arg=off'>Light Off</a><br><a href='/control/go?arg=on1'>Fan On(This doesnt do anything)</a><br><a href='/control/go?arg=off1'>Fan Off( This ones doesn\'t either lol)</a><br></p>"
     return render_template("genericpage.html",body=bdy)
 
 # Protected NONPAGE route redirects control's output methods, running the actual scripts, and then redirecting back to the control page
 @ap.route('/control/go')
 @login_required
+@admin_required
 def doEverything():
-    if is_admin() == False:
-        return redirect("/mypage")
     if request.args.get('arg') != None:
         if request.args.get('arg') == "on":
             print("do thing 1")
@@ -237,16 +259,16 @@ def doEverything():
 #TODO: learn more about the response class
 @ap.route('/video')
 @login_required
+@admin_required
 def video():
     return Response(gen(Camera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 # protected route vid shows a video from the connected camera
 @ap.route('/vid')
 @login_required
+@admin_required
 # displays the video with other website contents
 def vid():
-    if is_admin() == False:
-        return redirect("/")
     return render_template('stream.html')
 
 # this method allows uploading files to the server's static file... I think it's probably a really bad idea, but I wanted to see if I could do it... also it allows for creating new articles
@@ -270,9 +292,8 @@ def files():
 # in my test repo attached to the filesharing
 @ap.route('/files/d/<path:filename>')
 @login_required
+@admin_required
 def deletefile(filename):
-    if is_admin() == False:
-        return redirect('/')
     if os.path.exists('files/' + filename):
         os.remove('files/' + filename)
     return redirect('/files')
@@ -280,9 +301,8 @@ def deletefile(filename):
 # admin route, allowing management of users, and posts/articles
 @ap.route('/admin')
 @login_required
+@admin_required
 def admin():
-    if is_admin() == False:
-        return redirect('/mypage')
     users = User.query.all()
     return render_template("admin.html",title='admin',users=users)
 
@@ -291,9 +311,8 @@ def admin():
 # Requires : login, admin
 @ap.route('/create', methods=['GET','POST'])
 @login_required
+@admin_required
 def create():
-    if is_admin() == False:
-        return redirect("/")
     if request.method == "POST":
         if request.form['title'] != "" and request.form['body'] != '' and request.form['picture'] != '.gitignore':
             # create the new article here :)
@@ -319,6 +338,8 @@ def create():
 # admin delete driver, used for deleting any kind of content on the site
 # admin page redirects requests here
 # Requires : Login, Admin
+
+# special case for the @ admin decorator
 @ap.route('/admin/<path:type>/<path:did>')
 @login_required
 def admin_delete(type,did):
@@ -348,6 +369,8 @@ def admin_delete(type,did):
 
 
 # a delete function for users to delete their own comments
+
+# another special case for admins  ?  @@
 @ap.route('/deletecomment/<path:cid>')
 @login_required
 def user_delete_comment(cid):
