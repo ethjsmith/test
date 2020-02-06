@@ -15,9 +15,6 @@ ap.secret_key = "x9fLx81af*x90xbfx03xfaBxfcxc9r)x84x8bxd1xcafxe92x08x99x1exee8x0
 
 
 db = SQLAlchemy(ap)
-#db.init_app(ap)
-#from models import db,User, Comment, Post
-#from models import db
 db.create_all()
 class User(UserMixin, db.Model):
     '''User database model, created by new user (name,password,email)'''
@@ -132,17 +129,6 @@ def admin_required(f):
     wrap.__name__=f.__name__
     return wrap
 
-# def login_required(f):
-#     def wrap(*args, **kwargs):
-#         if 'user_id' in session:
-#             return f(*args, **kwargs)
-#         else:
-#             flash("Please log in ",category='info')
-#             #return redirect("/login")
-#             #print(request.url)
-#             return redirect(url_for('login', next = request.url))
-#     wrap.__name__ = f.__name__
-#     return wrap
 #Context processor makes functions and variable available to the app ( most importantly for my usage, the templates)
 @ap.context_processor
 def giveFunctions():
