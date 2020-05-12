@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import datetime
 #import urllib.parse
 from flask_sqlalchemy import SQLAlchemy
@@ -33,15 +33,16 @@ def test2(url):
 	a = Thing(url)
 	db.session.add(a)
 	db.session.commit()
-	return "your url is " + url
+	return "your url is " + request.url
 @app.route('/time')
 def time():
+	print(datetime.datetime.now().strftime('%H:%M'))
 	return datetime.datetime.now().strftime('%H:%M')
 # lets you see the saved URLS
 @app.route('/seeurls')
 def see():
 	tmp = str(datetime.date.today().strftime('%b %d, %Y'))
-	returns = Thing.query.filter_by(date=tmp)
+	returns = Thing.query.filter_by(date=str(datetime.date.today().strftime('%b %d, %Y')))
 	retme = ""
 	for x in returns:
 		retme += x.data + '__ at:' + x.time + "<br>"

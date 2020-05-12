@@ -1,0 +1,14 @@
+<html>
+    <body>
+        <a href = "/takeTurn"> Press at the Start of your turn!  </a>
+        {% for spell in spells %}
+            <div>
+                Spell: {{spell.spellname}} Cooldown: {{spell.current}}<br>
+                {% if spell.current == 0 %}
+                    <a href ="/cast/{{spell.id}}">Cast {{spell.spellname}} </a>
+                {% endif %}
+             </div>
+             <br>
+        {% endfor %}
+    </body>
+</html>
