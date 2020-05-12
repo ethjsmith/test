@@ -24,7 +24,7 @@ class Character(db.Model):
 class Spell(db.Model):
 	__tablename__ = 'Spell'
 	id = db.Column(db.Integer, primary_key=True)
-	parent_id = db.Column(db.Integer, ForeignKey("Character.id"))
+	parent_id = db.Column(db.Integer, db.ForeignKey("Character.id"))
 	spellname = db.Column(db.String())
 	cooldown = db.Column(db.Integer())
 	current = db.Column(db.Integer())
