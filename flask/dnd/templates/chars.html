@@ -1,0 +1,11 @@
+<html>
+    <body>
+        <form method = "POST" enctype = "multipart/form-data">
+            <select name = "character">
+                {% for char in chars %}
+                <option value = '{{char.id}}'>{{char.name}}</option>
+                {% endfor %}
+            <input type = "submit" value = "Select!"/>
+        </form>
+    </body>
+</html>
