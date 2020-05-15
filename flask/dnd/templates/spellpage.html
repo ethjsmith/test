@@ -1,14 +1,16 @@
-<html>
-    <body>
-        <a href = "/takeTurn"> Press at the Start of your turn!  </a>
+{% extends 'base.html' %}
+
+{% block content %}
+    {% include 'addspell.html' %}<br>
+    <div class = "card">
+        <h3> {{g.charname.name}}'s spells </h3>
         {% for spell in spells %}
-            <div>
                 Spell: {{spell.spellname}} Cooldown: {{spell.current}}<br>
                 {% if spell.current == 0 %}
                     <a href ="/cast/{{spell.id}}">Cast {{spell.spellname}} </a>
                 {% endif %}
-             </div>
-             <br>
+            <br>
         {% endfor %}
-    </body>
-</html>
+        <a href = "/takeTurn"> Press at the end of your turn!  </a>
+    </div>
+{% endblock %}

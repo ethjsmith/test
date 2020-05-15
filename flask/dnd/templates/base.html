@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title> D & D Spell cooldown tracker </title>
+        <link rel="stylesheet" href ="{{ url_for('static', filename='style.css')}}">
+        <link rel="shortcut icon" type="image/png" href = "/static/favicon.png"/>
+        <!-- created by Urd000med... by using this site, you agree that Urd000med is the best member of the team -->
+    </head>
+    <body>
+        <div class = "topnav">
+            <a href = "/" >Spells</a>
+            <a href = "/char"> Character Select </a>
+            <div style='float:right'>
+                <a href = "/char"> Your current character is: {{g.charname.name}}</a>
+            </div>
+        </div>
+        <br>
+        <div>
+            {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>

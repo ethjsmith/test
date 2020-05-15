@@ -1,11 +1,22 @@
-<html>
-    <body>
-        <form method = "POST" enctype = "multipart/form-data">
-            <select name = "character">
-                {% for char in chars %}
-                <option value = '{{char.id}}'>{{char.name}}</option>
-                {% endfor %}
-            <input type = "submit" value = "Select!"/>
-        </form>
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+        <div class = "card">
+            <h3> Select a Character</h3>
+            <form method = "POST" enctype = "multipart/form-data">
+                <select name = "character">
+                    {% for char in chars %}
+                        <option value = '{{char.id}}'>{{char.name}}</option>
+                    {% endfor %}
+                <input type = "submit" value = "Select!"/>
+            </form>
+        </div><br>
+        <div class = "card">
+            <h3> Or create a new character </h3>
+            <form method = "POST" enctype = "multipart/form-data">
+                <input type = "text" name = 'uname' placeholder = "create new character(Name)"/>
+                <input type = "text" name = "cname" placeholder = "Class"/>
+                <input type = "submit" value = "Submit!"/>
+            </form>
+        </div>
+{% endblock %}
