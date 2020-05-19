@@ -30,7 +30,7 @@ class Spell(db.Model):
 	current = db.Column(db.Integer())
 	def __init__(self,sname,coold,pid):
 		self.spellname = sname
-		self.cooldown = coold + 1
+		self.cooldown = int(coold) + 1
 		self.current = 0
 		self.parent_id = pid
 	# This should happen at the start of a turn :^) because that's how I think it should be
