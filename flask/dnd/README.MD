@@ -1,5 +1,13 @@
-Script for creating test database from scratch
+WEB app for keeping track of spell cooldowns during combat (and maybe more) )
 
+TODO:
+user authentication to access the site
+Character abilities / equipment usage
+UI improvements
+testing testing testing  
+
+
+Script for creating test database from scratch
 ```
 from app import Character,Spell,db
 db.create_all()

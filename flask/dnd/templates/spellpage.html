@@ -5,11 +5,17 @@
     <div class = "card">
         <h3> {{g.charname.name}}'s spells </h3>
         {% for spell in spells %}
-                Spell: {{spell.spellname}} Cooldown: {{spell.current}}<br>
+                Spell: {{spell.spellname}}(Spell Level:{{spell.cooldown}}) Cooldown: {{spell.current}}
+                {% if spell.current == 0 %}   <i class="rdy"> READY!</i> {% endif %}
+                {% if spell.current != 0 %}   <i class="notrdy"> on cooldown</i> {% endif %}
+                <br>
                 {% if spell.current == 0 %}
                     <a href ="/cast/{{spell.id}}">Cast {{spell.spellname}} </a>
                 {% endif %}
-            <br>
+                {% if spell.current != 0 %}
+                    <del>Cast {{spell.spellname}} </del> Not ready
+                {% endif %}
+                <br><br>
         {% endfor %}
 	</div>
 	<div class = "card"><br>

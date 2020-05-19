@@ -15,10 +15,11 @@ class Character(db.Model):
 	name = db.Column(db.String())
 	role = db.Column(db.String())
 	spells = db.relationship('Spell', backref ='Spell', lazy='dynamic', primaryjoin="Character.id == Spell.parent_id")
+	items = db.relationship("Item", backref = "Item", lazy = 'dynamic', primaryjoin="Character.id == Item.owner")
 	# how are spells and character linked ? I'm bad atthis
 	def __init__(self,name,role):
-		self.name=  name
-		self. role = role
+		self.name =  name
+		self.role = role
 
 
 class Spell(db.Model):
@@ -29,17 +30,45 @@ class Spell(db.Model):
 	cooldown = db.Column(db.Integer())
 	current = db.Column(db.Integer())
 	def __init__(self,sname,coold,pid):
+		if int(coold) < 0:
+			self.cooldown == 0
+		else:
+			self.cooldown = int(coold)
 		self.spellname = sname
-		self.cooldown = int(coold) + 1
 		self.current = 0
 		self.parent_id = pid
-	# This should happen at the start of a turn :^) because that's how I think it should be
+		# This now happens at the end of the turn, because that's better :^)
 	def dec(self):
 		if self.current > 0:
 			self.current -= 1
 	def cast(self):
 		self.current = self.current + self.cooldown
-
+# Item class, for items or daily powers, whatever really :^)
+class Item(db.Model):
+	__tablename__ = "Item"
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String())
+	owner = db.Column(db.Integer, db.ForeignKey("Character.id"))
+	# renewable = 0 item dissapears when uses gone 1 = recharges with long rest 2 = recharges with special condition
+	renewable = db.Column(db.Integer())
+	uses = db.Column(db.Integer())
+	current = db.Column(db.Integer())
+	def __init__(self,iname,pid,renew,use):
+		self.name = iname
+		self.owner = pid
+		self.renewable = renew
+		self.uses = use
+		self.current = use
+	def canuse(self):
+		if self.current > 0:
+			return True
+		return False
+	# dont forget a db.commit() after a use or a rest :^)
+	def use(self):
+		self.current -= 1
+	def rest(self):
+		if self.renewable == 2:
+			self.current = self.uses
 
 # check to make sure you have a character selected when you try to interact with the spells
 def char_selected(f):
@@ -76,16 +105,7 @@ def giveFunctions():
 		return Spel
 	return dict(getCharacters=getCharacters,getSpells=getSpells)
 
-@app.route("/a")
-def tfun():
-	chars = Character.query.all()
-	for char in chars:
-		print(char.name + ": " + str(char.id))
-		spel = Spell.query.filter_by(parent_id=char.id).all()
-		for spe in spel:
-			print(spe.spellname)
-		print("--------------")
-	return "Go check the logs here :) "
+
 
 @app.route("/", methods = ["GET","POST"])
 @char_selected
@@ -94,7 +114,7 @@ def testfunc():
 		a = Spell(request.form["spellname"],request.form["level"],g.character)
 		db.session.add(a)
 		db.session.commit()
-	spells = Spell.query.filter_by(parent_id = g.character).all()
+	spells = Spell.query.filter_by(parent_id = g.character).order_by(Spell.cooldown.asc()).all()
 	return render_template("spellpage.html", spells=spells)
 
 @app.route("/char", methods = ["GET","POST"])
@@ -130,6 +150,39 @@ def do():
 	db.session.commit()
 	return redirect("/")
 
+@app.route("/a")
+def tfun():
+	chars = Character.query.all()
+	for char in chars:
+		print(char.name + ": " + str(char.id))
+		spel = Spell.query.filter_by(parent_id=char.id).all()
+		for spe in spel:
+			print(spe.spellname)
+		print("--------------")
+	return "Results have been posted to logs :)  "
+
+@app.route("/admin")
+@char_selected
+def adm():
+	bdy = ""
+	chars = Character.query.all()
+
+	for char in chars:
+		bdy += char.name + ": " + str(char.id) + "<a href = '/d/Character/" + str(char.id) + "'>Delete</a><br>"
+		spel = Spell.query.filter_by(parent_id=char.id).all()
+		for spe in spel:
+			bdy += spe.spellname + "<a href = '/d/Spell/" + str(spe.id) + "'>DELETE SPELL </a><br>"
+
+	return bdy
+
+@app.route("/d/<path:type>/<path:id>")
+def dele(type,id):
+	if type == "Character":
+		Character.query.filter_by(id=id).delete()
+	elif type =="Spell":
+		Spell.query.filter_by(id=id).delete()
+	db.session.commit()
+	return redirect('/admin')
 
 if (__name__ == "__main__"):
 	app.run()

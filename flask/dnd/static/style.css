@@ -40,6 +40,14 @@
     padding: 20px;
     border-radius: 10px;
 }
+.rdy {
+    color: black;
+    background-color: #7dcb5f;
+}
+.notrdy{
+    color: black;
+    background-color: #FFCCCC;
+}
 
 body {
   background-color: #f1f1f1;
