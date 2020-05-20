@@ -106,6 +106,9 @@ def giveFunctions():
 	return dict(getCharacters=getCharacters,getSpells=getSpells)
 
 
+@app.route("/test")
+def dangtest():
+	return render_template("splitpage.html")
 
 @app.route("/", methods = ["GET","POST"])
 @char_selected
@@ -114,8 +117,14 @@ def testfunc():
 		a = Spell(request.form["spellname"],request.form["level"],g.character)
 		db.session.add(a)
 		db.session.commit()
+	elif request.method == "POST" and 'itemname' in request.form and 'uses' in request.form and 'type' in request.form:
+		print("making item")
+		a = Item(request.form["itemname"],g.character,request.form["type"],request.form["uses"])
+		db.session.add(a)
+		db.session.commit()
 	spells = Spell.query.filter_by(parent_id = g.character).order_by(Spell.cooldown.asc()).all()
-	return render_template("spellpage.html", spells=spells)
+	items = Item.query.filter_by(owner = g.character).order_by(Item.renewable.asc()).all()
+	return render_template("spellpage.html", spells=spells, items=items)
 
 @app.route("/char", methods = ["GET","POST"])
 def char_select():
@@ -130,8 +139,19 @@ def char_select():
 			session["character"] = request.form['character']
 		return redirect("/")
 	return render_template("chars.html", chars=Character.query.all())
-
-
+# route for using items
+@app.route("/use/<path:item>")
+@char_selected
+def useme(item):
+	used = Item.query.filter_by(id=item).first()
+	if used.canuse():
+		used.use()
+	if used.current < 1:
+		# if it's a one time Item like a potion it's deleted
+		if used.renewable == 1:
+			Item.query.filter_by(id=item).delete()
+	db.session.commit()
+	return redirect("/")
 @app.route("/cast/<path:spell>")
 @char_selected
 def castme(spell):
@@ -170,9 +190,11 @@ def adm():
 	for char in chars:
 		bdy += char.name + ": " + str(char.id) + "<a href = '/d/Character/" + str(char.id) + "'>Delete</a><br>"
 		spel = Spell.query.filter_by(parent_id=char.id).all()
+		ite = Item.query.filter_by(owner=char.id).all()
 		for spe in spel:
 			bdy += spe.spellname + "<a href = '/d/Spell/" + str(spe.id) + "'>DELETE SPELL </a><br>"
-
+		for itme in ite:
+			bdy += itme.name + "< href = '/d/Item/" + str(itme.id) + "'>DELETE ITEM </a><br>"
 	return bdy
 
 @app.route("/d/<path:type>/<path:id>")
@@ -181,6 +203,8 @@ def dele(type,id):
 		Character.query.filter_by(id=id).delete()
 	elif type =="Spell":
 		Spell.query.filter_by(id=id).delete()
+	elif type == "Item":
+		Item.query.filter_by(id=id).delete()
 	db.session.commit()
 	return redirect('/admin')
 

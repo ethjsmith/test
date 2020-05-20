@@ -28,6 +28,16 @@
   background-color: white;
   padding: 20px;
 }
+
+.left {
+    float:left;
+    width:49%;
+}
+.right{
+    float:right;
+    width:49%;
+}
+
 .error {
   color: black;
   background-color: #FFCCCC;

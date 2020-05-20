@@ -1,10 +1,13 @@
 WEB app for keeping track of spell cooldowns during combat (and maybe more) )
 
 TODO:
-user authentication to access the site
-Character abilities / equipment usage
-UI improvements
-testing testing testing  
+* user authentication to access the site
+* Character abilities / equipment usage
+* UI improvements
+* testing testing testing
+* fix for when pressing enter on unfilled tables
+* buttons for taking long rest, and recharging items
+* DNS name for site :^) 
 
 
 Script for creating test database from scratch
