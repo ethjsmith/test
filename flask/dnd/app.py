@@ -67,9 +67,10 @@ class Item(db.Model):
 	def use(self):
 		self.current -= 1
 	def rest(self):
-		if self.renewable == 2:
+		if self.renewable == 3:
 			self.current = self.uses
-
+	def charge(self,ch):
+		self.current += int(ch)
 # check to make sure you have a character selected when you try to interact with the spells
 def char_selected(f):
 #	@wraps(f)
@@ -105,19 +106,14 @@ def giveFunctions():
 		return Spel
 	return dict(getCharacters=getCharacters,getSpells=getSpells)
 
-
-@app.route("/test")
-def dangtest():
-	return render_template("splitpage.html")
-
 @app.route("/", methods = ["GET","POST"])
 @char_selected
 def testfunc():
-	if request.method == "POST" and 'spellname' in request.form and 'level' in request.form:
+	if request.method == "POST" and 'spellname' in request.form and request.form["spellname"] != "" and request.form['level'] != "":
 		a = Spell(request.form["spellname"],request.form["level"],g.character)
 		db.session.add(a)
 		db.session.commit()
-	elif request.method == "POST" and 'itemname' in request.form and 'uses' in request.form and 'type' in request.form:
+	elif request.method == "POST" and 'itemname' in request.form and request.form['itemname'] != "" and request.form['uses'] != "" and request.form['type'] != "":
 		print("making item")
 		a = Item(request.form["itemname"],g.character,request.form["type"],request.form["uses"])
 		db.session.add(a)
@@ -129,7 +125,7 @@ def testfunc():
 @app.route("/char", methods = ["GET","POST"])
 def char_select():
 	if request.method == "POST":
-		if 'uname' in request.form and 'cname' in request.form:
+		if 'uname' in request.form and 'cname' in request.form and request.form['uname'] != "" and request.form["cname"] != "":
 			a = Character(request.form['uname'],request.form['cname'])
 			db.session.add(a)
 			db.session.commit()
@@ -152,6 +148,18 @@ def useme(item):
 			Item.query.filter_by(id=item).delete()
 	db.session.commit()
 	return redirect("/")
+
+@app.route("/recharge", methods = ["GET","POST"])
+@char_selected
+def recharge():
+	if request.method == "POST" and request.form['numCharge'] != "":
+		charged = Item.query.filter_by(id=request.form['itemCharge']).first()
+		charged.charge(request.form["numCharge"])
+		db.session.commit()
+	items = Item.query.filter_by(owner = g.character).filter_by(renewable = 2).all()
+	return render_template("recharge.html",items=items)
+
+
 @app.route("/cast/<path:spell>")
 @char_selected
 def castme(spell):
@@ -167,6 +175,14 @@ def do():
 	spells = Spell.query.filter_by(parent_id = g.character).all()
 	for spell in spells:
 		spell.dec()
+	db.session.commit()
+	return redirect("/")
+@app.route("/rest")
+@char_selected
+def rest():
+	items = Item.query.filter_by(owner = g.character).all()
+	for item in items:
+		item.rest()
 	db.session.commit()
 	return redirect("/")
 
@@ -188,14 +204,18 @@ def adm():
 	chars = Character.query.all()
 
 	for char in chars:
-		bdy += char.name + ": " + str(char.id) + "<a href = '/d/Character/" + str(char.id) + "'>Delete</a><br>"
+		bdy += "<div class = 'card'>"
+		bdy += char.name + ": (ID:" + str(char.id) + ") <a href = '/d/Character/" + str(char.id) + "'>Delete</a><br>"
 		spel = Spell.query.filter_by(parent_id=char.id).all()
 		ite = Item.query.filter_by(owner=char.id).all()
+		bdy += "------------Spells:------------<br>"
 		for spe in spel:
 			bdy += spe.spellname + "<a href = '/d/Spell/" + str(spe.id) + "'>DELETE SPELL </a><br>"
+		bdy += "------------ Items:------------<br>"
 		for itme in ite:
-			bdy += itme.name + "< href = '/d/Item/" + str(itme.id) + "'>DELETE ITEM </a><br>"
-	return bdy
+			bdy += itme.name + "<a href = '/d/Item/" + str(itme.id) + "'>DELETE ITEM </a><br>"
+		bdy +="</div><br>"
+	return render_template("base.html",cnt=bdy)
 
 @app.route("/d/<path:type>/<path:id>")
 def dele(type,id):

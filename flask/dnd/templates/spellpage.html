@@ -6,21 +6,20 @@
         <div class = "card">
             <h3> {{g.charname.name}}'s spells </h3>
             {% for spell in spells %}
-                    Spell: {{spell.spellname}}(Spell Level:{{spell.cooldown}}) Cooldown: {{spell.current}}
-                    {% if spell.current == 0 %}   <i class="rdy"> READY!</i> {% endif %}
-                    {% if spell.current != 0 %}   <i class="notrdy"> on cooldown</i> {% endif %}
+                    Spell: {{spell.spellname}} ( Spell Level:{{spell.cooldown}} ) Cooldown: {{spell.current}}
+
                     <br>
                     {% if spell.current == 0 %}
-                        <a href ="/cast/{{spell.id}}">Cast {{spell.spellname}} </a>
+                        <a href ="/cast/{{spell.id}}"><button class = "rdy">Cast {{spell.spellname}}  </button></a>
                     {% endif %}
                     {% if spell.current != 0 %}
-                        <del>Cast {{spell.spellname}} </del> Not ready
+                        <button class = "notrdy"><del>Cast {{spell.spellname}}</del> : On cooldown </button>
                     {% endif %}
                     <br><br>
             {% endfor %}
-    	</div>
+    	</div><br>
     	<div class = "card"><br>
-            <a href = "/takeTurn"> Press at the end of your turn!  </a><br>
+            <a href = "/takeTurn"><button type = "button"> Press at the end of your turn!  </button></a><br>
         </div>
     </div>
     <div class = "right">
@@ -29,12 +28,19 @@
             <h3> {{g.charname.name}}'s Items and abilities </h3>
             {% for item in items %}
                 <i>{{item.name}}</i>   Uses: {{item.current}}
-                {% if item.current !=0 %}<a href = "/use/{{item.id}}"> Use {{item.name}} </a>{% endif %}
+                {% if item.current !=0 %}<a href = "/use/{{item.id}}"><button class = 'rdy'> Use {{item.name}} </button></a>{% endif %}
                 {% if item.current == 0 %}
-                    {% if item.renewable == 2 %}<i class = "notrdy"> {{item.name}} is all used up for the day.</i> Take a long rest to replenish it! {% endif %}
-                    {% if item.renewable == 3%} <i class= "notrdy"> {{item.name}} has lost it's charge! </i> find someone who can recharge it for you. {% endif %}
+                    {% if item.renewable == 2 %}<button class = 'notrdy'><del> Use {{item.name}} </del></button> {{item.name}} has lost it's charge!  find someone who can recharge it for you. {% endif %}
+                    {% if item.renewable == 3 %} <button class = 'notrdy'><del> Use {{item.name}} </del></button> {{item.name}} is all used up for the day. Take a long rest to replenish it! {% endif %}
                 {% endif %}<br>
             {% endfor %}
+        </div><br>
+        <div class = "card">
+            <a href = "/rest" class = "left"onclick="return confirm('Are you sure you want to long rest?')"><button type = "button"> Take a long rest </button></a>
+            <a href = "/recharge" class = "right"><button type = "button"> Recharge an item </button></a><br>
+            <br>
         </div>
     </div>
+
+
 {% endblock %}
