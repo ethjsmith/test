@@ -8,6 +8,10 @@ TODO:
 * ~~fix for when pressing enter on unfilled tables~~
 * ~~buttons for taking long rest, and recharging items~~
 * DNS name for site :^)
+* Fix gitignore
+* fix casting other player's spells
+* 
+*
 
 
 Script for creating test database from scratch

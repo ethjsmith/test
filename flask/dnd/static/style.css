@@ -66,7 +66,8 @@ button, input, select {
     padding: 4px;
 }
 button:hover, input:hover, select:hover {
-    background-color: #ddd;
+    /*background-color: #ddd;*/
+    filter: brightness(80%);
     color: black;
 }
 body {

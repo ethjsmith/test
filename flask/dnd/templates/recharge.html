@@ -2,7 +2,7 @@
 
 {% block content %}
         <div class = "card">
-            <h3> Select one of {{g.charname}}'s items to recharge</h3>
+            <h3> Select one of {{g.charname.name}}'s items to recharge</h3>
             <form method = "POST" enctype = "multipart/form-data">
                 <select name = "itemCharge">
                     {% for item in items %}
