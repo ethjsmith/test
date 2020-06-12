@@ -91,7 +91,6 @@ def before():
         g.character = session['character']
         g.charname = Character.query.filter_by(id=g.character).first()
         #g.charname = x.name
-
 # gives templates access to all stuff :)
 @app.context_processor
 def giveFunctions():

@@ -6,6 +6,9 @@
         <div class = "card">
             <h3> {{g.charname.name}}'s spells </h3>
             {% for spell in spells %}
+            {% if spell.current == 0 %}<img src="/static/ready.png">{% endif %}
+            {% if spell.current == 1 %}<img src="/static/almostready.png">{% endif %}
+            {% if spell.current >= 2 %}<img src="/static/notready.png">{% endif %}
                     Spell: {{spell.spellname}} ( Spell Level:{{spell.cooldown}} ) Cooldown: {{spell.current}}
 
                     <br>
@@ -18,8 +21,8 @@
                     <br><br>
             {% endfor %}
     	</div><br>
-    	<div class = "card"><br>
-            <a href = "/takeTurn"><button type = "button"> Press at the end of your turn!  </button></a><br>
+    	<div class = "card"> <br>
+            <a href = "/takeTurn"><button type = "button"> Press at the end of your turn! (Always) </button></a><br>
         </div>
     </div>
     <div class = "right">
@@ -27,6 +30,9 @@
         <div class = "card">
             <h3> {{g.charname.name}}'s Items and abilities </h3>
             {% for item in items %}
+                {% if item.renewable == 1 %}<img src="/static/potion.png">{% endif %}
+                {% if item.renewable == 2 %}<img src="/static/ring.png">{% endif %}
+                {% if item.renewable == 3 %}<img src="/static/scroll.png">{% endif %}
                 <i>{{item.name}}</i>   Uses: {{item.current}}
                 {% if item.current !=0 %}<a href = "/use/{{item.id}}"><button class = 'rdy'> Use {{item.name}} </button></a>{% endif %}
                 {% if item.current == 0 %}
