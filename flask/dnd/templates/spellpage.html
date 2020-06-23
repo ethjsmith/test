@@ -9,15 +9,19 @@
             {% if spell.current == 0 %}<img src="/static/ready.png">{% endif %}
             {% if spell.current == 1 %}<img src="/static/almostready.png">{% endif %}
             {% if spell.current >= 2 %}<img src="/static/notready.png">{% endif %}
-                    Spell: {{spell.spellname}} ( Spell Level:{{spell.cooldown}} ) Cooldown: {{spell.current}}
+                    lvl <b>{{spell.cooldown}}</b> Spell: <i>{{spell.spellname}}</i>
 
                     <br>
                     {% if spell.current == 0 %}
                         <a href ="/cast/{{spell.id}}"><button class = "rdy">Cast {{spell.spellname}}  </button></a>
                     {% endif %}
                     {% if spell.current != 0 %}
-                        <button class = "notrdy"><del>Cast {{spell.spellname}}</del> : On cooldown </button>
+                        <button class = "notrdy"><del>Cast {{spell.spellname}}</del> </button>
                     {% endif %}
+                    {% for z in range(spell.cooldown) %}
+                        {% if spell.current <= z %} <img src="/static/cd_green.png"> {% endif %}
+                        {% if spell.current > z %} <img src="/static/cd_red.png"> {% endif %}
+                    {% endfor %}
                     <br><br>
             {% endfor %}
     	</div><br>

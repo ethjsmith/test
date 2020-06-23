@@ -179,6 +179,9 @@ def do():
 @app.route("/rest")
 @char_selected
 def rest():
+	spells = Spell.query.filter_by(parent_id = g.character).all()
+	for spell in spells:
+		spell.current = 0
 	items = Item.query.filter_by(owner = g.character).all()
 	for item in items:
 		item.rest()
