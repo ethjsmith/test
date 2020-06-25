@@ -37,7 +37,24 @@
                 {% if item.renewable == 1 %}<img src="/static/potion.png">{% endif %}
                 {% if item.renewable == 2 %}<img src="/static/ring.png">{% endif %}
                 {% if item.renewable == 3 %}<img src="/static/scroll.png">{% endif %}
-                <i>{{item.name}}</i>   Uses: {{item.current}}
+                <i>{{item.name}}</i>   Uses:
+                {# THIS WHOLE SECTION IS FOR DISPLAYING THE ITEM COOLDOWN THINGIES #}
+                    {% if item.renewable == 1 %}
+                        {% for cnt in range(item.current) %}<img src="/static/cd_green.png"> {% endfor %}
+                    {% endif %}
+                    {% if item.renewable == 2 %}
+                        {% for cnt in range(item.uses) %}
+                            {% if cnt < item.current %}<img src="/static/cd_green.png">{% endif %}
+                            {% if cnt >= item.current %}<img src="/static/cd_invalid.png">{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if item.renewable == 3 %}
+                        {% for cnt2 in range(item.uses) %}
+                            {% if cnt2 < item.current%}<img src="/static/cd_green.png">{% endif %}
+                            {% if cnt2 >= item.current%}<img src="/static/cd_red.png">{% endif %}
+                        {% endfor %}
+                    {% endif %}
+
                 {% if item.current !=0 %}<a href = "/use/{{item.id}}"><button class = 'rdy'> Use {{item.name}} </button></a>{% endif %}
                 {% if item.current == 0 %}
                     {% if item.renewable == 2 %}<button class = 'notrdy'><del> Use {{item.name}} </del></button> {{item.name}} has lost it's charge!  find someone who can recharge it for you. {% endif %}

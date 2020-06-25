@@ -71,6 +71,8 @@ class Item(db.Model):
 			self.current = self.uses
 	def charge(self,ch):
 		self.current += int(ch)
+		if self.current > self.uses:
+			self.current = self.uses
 # check to make sure you have a character selected when you try to interact with the spells
 def char_selected(f):
 #	@wraps(f)
