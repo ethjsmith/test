@@ -42,7 +42,7 @@ class Spell(db.Model):
 		if self.current > 0:
 			self.current -= 1
 	def cast(self):
-		self.current = self.current + self.cooldown
+		self.current = self.current + self.cooldown + 1
 # Item class, for items or daily powers, whatever really :^)
 class Item(db.Model):
 	__tablename__ = "Item"

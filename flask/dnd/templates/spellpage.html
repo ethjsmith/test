@@ -18,7 +18,7 @@
                     {% if spell.current != 0 %}
                         <button class = "notrdy"><del>Cast {{spell.spellname}}</del> </button>
                     {% endif %}
-                    {% for z in range(spell.cooldown) %}
+                    {% for z in range(spell.cooldown+1) %}
                         {% if spell.current <= z %} <img src="/static/cd_green.png"> {% endif %}
                         {% if spell.current > z %} <img src="/static/cd_red.png"> {% endif %}
                     {% endfor %}
