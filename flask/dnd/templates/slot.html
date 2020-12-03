@@ -1,8 +1,0 @@
-<!-- Here you can track the spell slots that you currently have ready  -->
-<h3> {{g.charname.name}}'s Spell slots </h3>
-
-{% for slot in slots %}
-{{slot.level}}
-{% if slot.used == 1 %}X{% endif %}
-{% if slot.used == 0 %}O<button></button>{% endif %}
-{% endfor %}
